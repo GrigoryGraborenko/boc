@@ -89,7 +89,7 @@ module.exports = function(React, ReactDOMServer, tools) {
     var server_handler = server_core(React, ReactDOMServer, static_files, html_base, tools);
 
     if(config.ssl.enable) {
-        var port = config.server.ssl.port;
+        var port = config.ssl.port;
         var server = https.createServer({
             ca: fs.readFileSync(config.ssl.ca)
             ,key: fs.readFileSync(config.ssl.key)

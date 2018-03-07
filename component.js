@@ -27,7 +27,7 @@ module.exports = function(React) {
             ,componentWillMount: function() {
                 var subscriptions = {};
                 var this_ref = this;
-                for(let key in connections) {
+                Object.keys(connections).forEach(function(key) {
                     var func = function(callback_val) {
                         var new_state = {};
                         new_state[key] = callback_val;
@@ -35,7 +35,7 @@ module.exports = function(React) {
                     };
                     this.props.store.subscribe(connections[key], func);
                     subscriptions[connections[key]] = func;
-                }
+                }, this);
                 this.setState({ _subscriptions : subscriptions });
             }
             ,componentWillUnmount: function() {

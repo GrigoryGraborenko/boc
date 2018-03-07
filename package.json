@@ -1,0 +1,33 @@
+{
+  "name": "boc",
+  "version": "0.9.0",
+  "description": "Web server & client framework",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "thing": "echo \"Error: no thing specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GrigoryGraborenko/boc.git"
+  },
+  "keywords": [
+    "node",
+    "react"
+  ],
+  "author": "Grigory Graborenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GrigoryGraborenko/boc/issues"
+  },
+  "homepage": "https://github.com/GrigoryGraborenko/boc#readme",
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "bin": {
+    "initialize": "./cli.js"
+  },
+  "dependencies": {
+    "multiparty": "^4.1.3"
+  }
+}

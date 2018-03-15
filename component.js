@@ -50,6 +50,10 @@ module.exports = function(React) {
                 }
                 var params = Object.assign({}, this.props, this.state);
                 delete params["_subscriptions"];
+                if(params.reference) {
+                    params.ref = params.reference;
+                    delete params.reference;
+                }
                 return React.createElement(component, params);
             }
         });

@@ -1,0 +1,32 @@
+{
+  "name": "boc-minimum-sass",
+  "version": "0.0.1",
+  "description": "Boc minimum project (with Sass)",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon --ignore node_modules/ --ignore log/ --ignore babel_cache/ --ignore babel_cache/  --ignore temp/ -e js,css,html ./build_dev/server.js dev | bunyan",
+    "build": "npm run sass && webpack --env.production",
+    "sass": "node-sass --include-path ./node_modules --include-path ./web ./sass/main.scss ./web/main.css",
+    "sass-watch": "nodemon -e scss -x \"npm run sass\"",
+    "dev-watch": "webpack --watch | npm run sass-watch | npm run dev"
+  },
+  "author": "Grigory Graborenko",
+  "license": "ISC",
+  "dependencies": {
+    "boc": "*",
+    "react": "15.4.*",
+    "react-dom": "15.4.*"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.23.0",
+    "babel-core": "^6.23.1",
+    "babel-loader": "^6.4.0",
+    "babel-preset-env": "^1.2.1",
+    "babel-preset-es2015-ie": "^6.7.0",
+    "babel-preset-react": "^6.23.0",
+    "ignore-loader": "^0.1.2",
+    "node-sass": "^4.5.3",
+    "source-map-support": "*",
+    "webpack": "^2.2.1"
+  }
+}

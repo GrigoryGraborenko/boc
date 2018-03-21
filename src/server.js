@@ -54,6 +54,7 @@ function crawlFiles(file_list, dir, prefix) {
 
 module.exports = function(React, ReactDOMServer, tools) {
 
+    var logger = tools.logger;
     var static_files = {};
     crawlFiles(static_files, tools.base_dir + tools.web_dir, "/");
     var html_base = fs.readFileSync(tools.base_dir + tools.base_html) + "";
@@ -97,13 +98,19 @@ module.exports = function(React, ReactDOMServer, tools) {
             ,requestCert: false
             ,rejectUnauthorized: false
         }, server_handler);
-        tools.logger.info("STARTING SSL SERVER on port " + port + " with redirect server on port " + config.port);
+        if(logger) {
+            logger.info("STARTING SSL SERVER on port " + port + " with redirect server on port " + config.port);
+        }
         server.listen(port);
 
         var redirect_server = http.createServer(function (request, response) {
-            tools.logger.trace("Incoming HTTP request on port 80", request.url);
+            if(logger) {
+                logger.trace("Incoming HTTP request on port 80", request.url);
+            }
             if(request.method !== "GET") {
-                tools.logger.trace("Non-GET method on port 80");
+                if(logger) {
+                    logger.trace("Non-GET method on port 80");
+                }
                 response.writeHead(400);
                 response.end();
                 return;
@@ -117,7 +124,9 @@ module.exports = function(React, ReactDOMServer, tools) {
 
     } else {
         var server = http.createServer(server_handler);
-        tools.logger.info("STARTING SERVER on port " + config.port);
+        if(logger) {
+            logger.info("STARTING SERVER on port " + config.port);
+        }
         server.listen(config.port);
     }
 };

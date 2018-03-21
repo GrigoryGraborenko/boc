@@ -20,12 +20,12 @@ function getFiles(path, list) {
 function execute() {
 
     var src_dir = __dirname + '\\';
-    if((process.argv.length >= 3) && (process.argv[2] === "example")) {
-        src_dir += "example";
-    } else if((process.argv.length >= 3) && (process.argv[2] === "minimal")) {
-        src_dir += "minimal";
+    var possible = ["example", "minimal", "minimal-sass"];
+
+    if((process.argv.length >= 3) && (possible.indexOf(process.argv[2]) >= 0)) {
+        src_dir += process.argv[2];
     } else {
-        return "Please pick a project type to start with. Possible types: example, minimal";
+        return ("Please pick a project type to start with. Possible types: " + possible.join(", "));
     }
 
     var dest_dir = process.cwd();

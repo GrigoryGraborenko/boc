@@ -50,13 +50,17 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
     /// core handler
     async function handleRequest(url, request, response) {
 
-        logger.trace("Received request body");
+        if(logger) {
+            logger.trace("Received request body");
+        }
 
         var store = Store(tools.actions, tools.decorators);
         var route = store.processURL(url);
 
         if(route === null) {
-            logger.debug("No route for URL: " + url);
+            if(logger) {
+                logger.debug("No route for URL: " + url);
+            }
             response.writeHead(404);
             response.end();
             return;
@@ -127,7 +131,9 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
             Object.assign(initial_data, state_builder.getAllCookies());
         } catch(error) {
             var initial_data = null;
-            logger.debug("Error", error);
+            if(logger) {
+                logger.debug("Error", error);
+            }
 
             if(typeof error === "string") {
                 if(request.method === "GET") {
@@ -150,7 +156,7 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
             for(let file_key in route.files) {
                 route.files[file_key].forEach(function(file) {
                     fs.unlink(file.path, function(err) {
-                        if(err) {
+                        if(err && logger) {
                             logger.error("Could not delete file at " + file.path);
                         }
                     });
@@ -162,7 +168,9 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
             return;
         }
         if(state_builder.getManualResponse()) {
-            logger.trace("Deferring to manual response");
+            if(logger) {
+                logger.trace("Deferring to manual response");
+            }
             return;
         }
 
@@ -178,14 +186,18 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
                 var output_headers = state_builder.getAllOutputHeaders(header);
                 var output = state_builder.getFileOutput();
                 if(output === null) {
-                    logger.error("No file output on route", route);
+                    if(logger) {
+                        logger.error("No file output on route", route);
+                    }
                     response.writeHead(500);
                     response.end();
                 } else {
                     response.writeHead(200, output_headers);
                     response.write(output);
                     response.end();
-                    logger.trace("Wrote file response");
+                    if(logger) {
+                        logger.trace("Wrote file response");
+                    }
                 }
 
             } else {
@@ -197,7 +209,9 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
                 try {
                     store.setInitialData(initial_data, false);
                 } catch (err) {
-                    logger.error("Detected error on data processing", err);
+                    if(logger) {
+                        logger.error("Detected error on data processing", err);
+                    }
                     response.writeHead(500, {});
                     response.end();
                     return;
@@ -208,7 +222,9 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
                     var element = React.createElement(tools.app, { store: store, client: false });
                     var html_react = ReactDOMServer.renderToStaticMarkup(element);
                 } catch (err) {
-                    logger.error("Detected error on react render", err);
+                    if(logger) {
+                        logger.error("Detected error on react render", err);
+                    }
                     response.writeHead(500, {});
                     response.end();
                     return;
@@ -228,7 +244,9 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
                 response.write(payload);
                 response.end();
 
-                logger.trace("Wrote HTML response");
+                if(logger) {
+                    logger.trace("Wrote HTML response");
+                }
             }
         } else {
             let output_headers = state_builder.getAllOutputHeaders({ "Content-Type": "application/json" });
@@ -244,14 +262,18 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
             response.writeHead(200, output_headers);
             response.write(payload);
             response.end();
-            logger.trace("Wrote POST response");
+            if(logger) {
+                logger.trace("Wrote POST response");
+            }
         }
     }
 
     /// entry point
     return function(request, response) {
 
-        logger.trace("Incoming request", request.url);
+        if(logger) {
+            logger.trace("Incoming request", request.url);
+        }
 
         var url = request.url;
         if(url.indexOf("?") !== -1) {
@@ -275,9 +297,13 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
         }
 
         handleRequest(url, request, response).then(function() {
-            logger.trace("Successful request", request.url);
+            if(logger) {
+                logger.trace("Successful request", request.url);
+            }
         }, function(err) {
-            logger.error("Failed request", request.url, err);
+            if(logger) {
+                logger.error("Failed request", request.url, err);
+            }
             response.writeHead(500);
             response.end();
         });

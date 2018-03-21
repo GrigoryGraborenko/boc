@@ -19,18 +19,22 @@ function getFiles(path, list) {
 
 function execute() {
 
-    var src_dir = __dirname + '\\';
     var possible = ["example", "minimal", "minimal-sass"];
 
+
     if((process.argv.length >= 3) && (possible.indexOf(process.argv[2]) >= 0)) {
-        src_dir += process.argv[2];
+        var type = process.argv[2];
     } else {
         return ("Please pick a project type to start with. Possible types: " + possible.join(", "));
     }
 
+    var src_dir = __dirname + '\\' + type;
     var dest_dir = process.cwd();
     var files = [];
     getFiles(src_dir, files);
+    if(type === "minimal") {
+        files.push({ path: (src_dir + '\\web')});
+    }
 
     files.forEach(function(file_obj) {
 

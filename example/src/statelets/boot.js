@@ -3,11 +3,16 @@
  */
 
 module.exports = {
-    dependencies: []
-    ,process: async function(builder, db, route) {
+    dependencies: ["user", "forum"]
+    ,process: async function(builder, db, route, user, forum) {
 
         return {
-            hi: "there"
+            user: user.public
+            ,forum_list: forum.forum_list
+            ,forum: forum.forum
+            ,threads: forum.threads
+            ,thread: forum.thread
+            ,posts: forum.posts
         };
     }
 };

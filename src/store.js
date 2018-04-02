@@ -309,6 +309,15 @@ var Store = function(actions, decorators) {
             }
         }
     };
+    ///////////////////////////////////
+    m_Api.broadcast = function(key, data) {
+        if(m_Callbacks[key] === undefined) {
+            return;
+        }
+        for(var i = 0; i < m_Callbacks[key].length; i++) {
+            m_Callbacks[key][i](data);
+        }
+    };
 
     ///////////////////////////////////
     m_Api.actionFile = function(action_name, input, callback) {
@@ -390,8 +399,10 @@ var Store = function(actions, decorators) {
         if(action.store !== undefined) {
             var store_output = action.store(input);
             for(var key in store_output) {
-                document.cookie = key + "=" + store_output[key] + ";path=/";
-                //storage.setItem(key, store_output[key]);
+                if(typeof store_output[key] === "string") {
+                    document.cookie = key + "=" + store_output[key] + ";path=/";
+                    //storage.setItem(key, store_output[key]);
+                }
             }
             modifyData(store_output);
         }

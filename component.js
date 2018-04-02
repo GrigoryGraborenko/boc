@@ -9,6 +9,9 @@ module.exports = function(React) {
         component_spec.action = function(name, input, callback) {
             this.props.store.action(name, input, callback);
         };
+        component_spec.broadcast = function(name, data) {
+            this.props.store.broadcast(name, data);
+        };
 
         var component = React.createClass(component_spec);
         return React.createClass({
@@ -36,6 +39,17 @@ module.exports = function(React) {
                     this.props.store.subscribe(connections[key], func);
                     subscriptions[connections[key]] = func;
                 }, this);
+
+                if(component_spec.subscribe) {
+                    Object.keys(component_spec.subscribe).forEach(function(key) {
+                        var func = function(callback_val) {
+                            component_spec.subscribe[key].bind(this_ref.element)(callback_val);
+                        };
+                        this.props.store.subscribe(key, func);
+                        subscriptions[key] = func;
+                    }, this);
+                }
+
                 this.setState({ _subscriptions : subscriptions });
             }
             ,componentWillUnmount: function() {
@@ -50,10 +64,20 @@ module.exports = function(React) {
                 }
                 var params = Object.assign({}, this.props, this.state);
                 delete params["_subscriptions"];
+
+                var ref_call = null;
                 if(params.reference) {
-                    params.ref = params.reference;
+                    ref_call = params.reference;
                     delete params.reference;
                 }
+                var this_ref = this;
+                params.ref = function(element) {
+                    if(ref_call) {
+                        ref_call(element);
+                    }
+                    this_ref.element = element;
+                };
+
                 return React.createElement(component, params);
             }
         });

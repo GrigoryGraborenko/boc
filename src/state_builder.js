@@ -29,7 +29,7 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
         return (request.method === "GET");
     };
     m_Api.getParam = function(key) {
-        return params[key];
+        return params.parameters[key];
     };
     m_Api.getRequest = function() {
         return request;
@@ -127,11 +127,15 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
         var output = Object.assign({}, base, m_OutputHeaders);
 
         var cookie_list = [];
-        for(var name in m_OutputCookies) {
+        for(let name in m_OutputCookies) {
             cookie_list.push(name + "=" + m_OutputCookies[name]);
         }
         if(cookie_list.length > 0) {
-            output['Set-Cookie'] = cookie_list.join(";");
+            let restrictions = "; SameSite=Strict; HttpOnly;";
+            if(params.server.ssl.enable) {
+                restrictions += " Secure;";
+            }
+            output['Set-Cookie'] = cookie_list.join(";") + restrictions;
         }
         return output;
     };

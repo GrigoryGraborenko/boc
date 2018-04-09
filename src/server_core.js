@@ -122,7 +122,7 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
             }
         }
 
-        var state_builder = StateBuilder(tools.config.parameters, tools.orm, tools.db, tools.logger, tools.decorators, tools.statelets, request, route, response);
+        var state_builder = StateBuilder(tools.config, tools.orm, tools.db, tools.logger, tools.decorators, tools.statelets, request, route, response);
 
         var entry = route.entry || "boot";
 

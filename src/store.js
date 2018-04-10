@@ -77,7 +77,11 @@ var Store = function(actions, decorators) {
             request.setRequestHeader("Content-type", "application/json");
         }
 
-        var change = { _pending: Object.assign({}, m_Data._pending, { [key]: ( m_Data._pending[key] ? (m_Data._pending[key] + 1) : 1 ) }) };
+
+        var change = {};
+        change[key] = m_Data._pending[key] ? (m_Data._pending[key] + 1) : 1;
+        change = { _pending: Object.assign({}, m_Data._pending, change) };
+        //var change = { _pending: Object.assign({}, m_Data._pending, { [key]: ( m_Data._pending[key] ? (m_Data._pending[key] + 1) : 1 ) }) };
         if(m_Data._errors[key] !== undefined) {
             var new_errors = Object.assign({}, m_Data._errors);
             delete new_errors[key];
@@ -110,7 +114,9 @@ var Store = function(actions, decorators) {
                 } catch(e) {
                     var data = { error: "Server Error" };
                 }
-                modifyData({ _errors: Object.assign({}, m_Data._errors, { [key]: data.error }), _pending: new_pending });
+                var error_change = {};
+                error_change[key] = data.error;
+                modifyData({ _errors: Object.assign({}, m_Data._errors, error_change), _pending: new_pending });
                 if(callback) {
                     callback(false, data);
                 }

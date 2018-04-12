@@ -28,7 +28,7 @@ var Store = function(actions, decorators) {
                 }
                 for(let key in result) {
                     if(!keysContain(key)) {
-                        keys.push(key);
+                        keys.unshift(key);
                     }
                     m_Data[key] = result[key];
                 }

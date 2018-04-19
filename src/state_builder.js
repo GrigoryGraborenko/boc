@@ -46,8 +46,8 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
     m_Api.getAllCookies = function() {
         return Object.assign({}, m_Cookies, m_OutputCookies);
     };
-    m_Api.transaction = async function() {
-        return await sequelize.transaction();
+    m_Api.transaction = async function(input) {
+        return await sequelize.transaction(input);
     };
     m_Api.log = function(level, msg, extra) {
         if(extra) {

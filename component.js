@@ -3,7 +3,11 @@
  */
 'use strict';
 
-module.exports = function(React) {
+module.exports = function(React, CreateClass) {
+
+    if(!CreateClass) {
+        CreateClass = React.createClass;
+    }
 
     return function(connections, component_spec) {
         component_spec.action = function(name, input, callback) {
@@ -13,8 +17,8 @@ module.exports = function(React) {
             this.props.store.broadcast(name, data);
         };
 
-        var component = React.createClass(component_spec);
-        return React.createClass({
+        var component = CreateClass(component_spec);
+        return CreateClass({
             getInitialState: function() {
 
                 if(this.props.store === undefined) {

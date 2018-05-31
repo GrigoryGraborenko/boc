@@ -121,12 +121,13 @@ module.exports = function(React, ReactDOMServer, tools) {
             response.end();
         });
         redirect_server.listen(config.port);
-
+        return [server, redirect_server];
     } else {
         var server = http.createServer(server_handler);
         if(logger) {
             logger.info("STARTING SERVER on port " + config.port);
         }
         server.listen(config.port);
+        return [server];
     }
 };

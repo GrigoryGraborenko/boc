@@ -1,6 +1,6 @@
 {
   "name": "boc",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "description": "Web server & client framework",
   "main": "index.js",
   "scripts": {

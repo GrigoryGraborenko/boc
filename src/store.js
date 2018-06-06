@@ -101,6 +101,13 @@ var Store = function(actions, decorators) {
 
             if(request.status === 200) {
                 var data = JSON.parse(request.responseText);
+
+                if(data.route) { /// dynamically modify the URL if the server requests it
+                    var new_url = m_Api.generateURL(data.route.name, data.route.params);
+                    if(new_url) {
+                        window.history.pushState({}, "", new_url);
+                    }
+                }
                 data._pending = new_pending;
                 modifyData(data);
                 if(callback) {
@@ -202,6 +209,9 @@ var Store = function(actions, decorators) {
 
         if(typeof action === "string") {
             action = actions[action];
+        }
+        if(!action) {
+            return null;
         }
 
         var url_parts = action.url.split("/").filter(function(part) { return part !== "" });
@@ -392,9 +402,10 @@ var Store = function(actions, decorators) {
             var server_action = action.server === true;
         }
 
-        if((action.url !== undefined) && (suppress_route !== true)) {
+        // if((action.url !== undefined) && (suppress_route !== true)) {
+        if(action.url !== undefined) {
             var url = m_Api.generateURL(action, input);
-            if(url !== null) {
+            if((url !== null) && (suppress_route !== true)) {
                 window.history.pushState({}, "", url);
                 if (action.defaults !== undefined) {
                     input = Object.assign({}, action.defaults, input);

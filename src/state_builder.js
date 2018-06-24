@@ -11,6 +11,7 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
     var m_StateletPromises = {};
     var m_Statelets = {};
     var m_Cookies = {};
+    var m_OutputData = {};
     var m_OutputHeaders = {};
     var m_OutputCookies = {};
     var m_OutputFile = null;
@@ -54,6 +55,13 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
             logger[level](msg, extra);
         } else {
             logger[level](msg);
+        }
+    };
+    m_Api.output = function(key, value) {
+        if(typeof key === "string") {
+            m_OutputData[key] = value;
+        } else {
+            m_OutputData = Object.assign({}, m_OutputData, key);
         }
     };
     m_Api.outputCookie = function(name, value) {
@@ -121,6 +129,12 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
         var promise = statelet.execute(m_Api, db, route);
         m_StateletPromises[name] = promise;
         return promise;
+    };
+    m_Api.getOutput = function(key) {
+        if(key) {
+            return m_OutputData[key];
+        }
+        return m_OutputData;
     };
 
     m_Api.getAllOutputHeaders = function(base) {

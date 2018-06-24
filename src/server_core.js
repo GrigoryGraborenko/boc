@@ -127,7 +127,8 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
         var entry = route.entry || "boot";
 
         try {
-            var initial_data = await state_builder.get(entry);
+            await state_builder.get(entry);
+            var initial_data = state_builder.getOutput();
             Object.assign(initial_data, state_builder.getAllCookies());
         } catch(error) {
             var initial_data = null;

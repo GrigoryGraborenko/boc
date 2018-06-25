@@ -26,7 +26,7 @@ var Store = function(actions, decorators) {
                 if(!result) {
                     return;
                 }
-                for(let key in result) {
+                for(var key in result) {
                     if(!keysContain(key)) {
                         keys.unshift(key);
                     }

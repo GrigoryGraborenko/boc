@@ -45,7 +45,12 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
         return m_Cookies[name];
     };
     m_Api.getAllCookies = function() {
-        return Object.assign({}, m_Cookies, m_OutputCookies);
+        var cookie_vals = Object.assign({}, m_Cookies);
+        for(var name in m_OutputCookies) {
+            cookie_vals[name] = m_OutputCookies[name].value;
+        }
+
+        return cookie_vals;
     };
     m_Api.transaction = async function(input) {
         return await sequelize.transaction(input);
@@ -64,20 +69,36 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
             m_OutputData = Object.assign({}, m_OutputData, key);
         }
     };
-    m_Api.outputCookie = function(name, value) {
-        m_OutputCookies[name] = value;
+    m_Api.outputCookie = function(name, value, read_only) {
+        m_OutputCookies[name] = { value: value, http: (read_only !== false) };
     };
     m_Api.outputToFile = function(data, filename) {
         if(m_OutputFile === null) {
             m_OutputFile = data;
             if(filename) {
-                m_OutputHeaders["Content-Disposition"] = "attachment; filename=\"" + filename + "\"";
+                m_Api.outputHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
             }
         } else {
             m_OutputFile = Buffer.concat([m_OutputFile, data]);
         }
     };
-    m_Api.outputHeader = function(header, data) {
+    m_Api.setOutputFileName = function(filename) {
+        m_Api.outputHeader("Content-Disposition", filename ? ("attachment; filename=\"" + filename + "\"") : null);
+    };
+    m_Api.outputHeader = function(header, data, allow_multiple) {
+
+        var existing = m_OutputHeaders[header];
+        if(existing !== undefined) {
+            if(data === null) {
+                delete m_OutputHeaders[header];
+            } else if((allow_multiple === true) && Array.isArray(existing)) {
+                existing.push(data);
+            } else if(allow_multiple === true) {
+                m_OutputHeaders[header] = [existing, data];
+            }
+            return;
+        }
+
         m_OutputHeaders[header] = data;
     };
     m_Api.manualResponse = function(status, headers, body) {
@@ -107,7 +128,7 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
             if(!result) {
                 return;
             }
-            for(let key in result) {
+            for(var key in result) {
                 if(!keysContain(key)) {
                     keys.push(key);
                 }
@@ -140,17 +161,24 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
     m_Api.getAllOutputHeaders = function(base) {
         var output = Object.assign({}, base, m_OutputHeaders);
 
+        var default_restriction = "; SameSite=Strict;";
+        if(params.server.ssl.enable) {
+            default_restriction += " Secure;";
+        }
         var cookie_list = [];
-        for(let name in m_OutputCookies) {
-            cookie_list.push(name + "=" + m_OutputCookies[name]);
+        for(var name in m_OutputCookies) {
+            var cookie = m_OutputCookies[name];
+            cookie_list.push(name + "=" + cookie.value + default_restriction + (cookie.http ? " HttpOnly" : ""));
         }
-        if(cookie_list.length > 0) {
-            let restrictions = "; SameSite=Strict; HttpOnly;";
-            if(params.server.ssl.enable) {
-                restrictions += " Secure;";
-            }
-            output['Set-Cookie'] = cookie_list.join(";") + restrictions;
+
+        var existing = output['Set-Cookie'];
+        if(existing && Array.isArray(existing)) {
+            cookie_list = cookie_list.concat(existing);
+        } else if(existing) {
+            cookie_list.push(existing);
         }
+        output['Set-Cookie'] = cookie_list;
+
         return output;
     };
     m_Api.getFileOutput = function() {

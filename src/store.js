@@ -100,10 +100,12 @@ var Store = function(actions, decorators) {
             }
 
             if(request.status === 200) {
-                var data = JSON.parse(request.responseText);
+                var response_data = JSON.parse(request.responseText);
+                var data = response_data.data;
 
-                if(data.route) { /// dynamically modify the URL if the server requests it
-                    var new_url = m_Api.generateURL(data.route.name, data.route.params);
+                if(response_data.route) { /// dynamically modify the URL if the server requests it
+                    data.route = response_data.route;
+                    var new_url = m_Api.generateURL(response_data.route.name, response_data.route.params);
                     if(new_url) {
                         window.history.pushState({}, "", new_url);
                     }
@@ -153,6 +155,10 @@ var Store = function(actions, decorators) {
         }
     }
 
+    /////////////////////////////////// returns if rendering is happening on server or client
+    m_Api.isClientContext = function() {
+        return m_IsClient;
+    };
     /////////////////////////////////// returns action name and params
     m_Api.processURL = function(url) {
         var parts = url.split("/").filter(function(part) { return part !== "" });

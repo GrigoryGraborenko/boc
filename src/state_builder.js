@@ -16,6 +16,7 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
     var m_OutputCookies = {};
     var m_OutputFile = null;
     var m_ManualResponse = false;
+    var m_Redirect = null;
 
     if(request.headers.cookie !== undefined) {
         request.headers.cookie.split(';').forEach(function (cookie) {
@@ -44,13 +45,21 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
     m_Api.getCookie = function(name) {
         return m_Cookies[name];
     };
-    m_Api.getAllCookies = function() {
-        var cookie_vals = Object.assign({}, m_Cookies);
+    m_Api.getOutputCookies = function() {
+        var cookie_vals = {};
         for(var name in m_OutputCookies) {
             cookie_vals[name] = m_OutputCookies[name].value;
         }
-
         return cookie_vals;
+    };
+    m_Api.getAllCookies = function() {
+        return Object.assign({}, m_Cookies, m_Api.getOutputCookies());
+    };
+    m_Api.getRedirect = function() {
+        return m_Redirect;
+    };
+    m_Api.redirect = function(action, params) {
+        m_Redirect = { name: action, params: (params ? params : {}) };
     };
     m_Api.transaction = async function(input) {
         return await sequelize.transaction(input);

@@ -203,7 +203,7 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
 
             } else {
 
-                if (initial_data.route === undefined) {
+                if(initial_data.route === undefined) {
                     initial_data.route = route;
                 }
                 var initial_data_str = JSON.stringify(initial_data);
@@ -251,8 +251,12 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
             }
         } else {
             let output_headers = state_builder.getAllOutputHeaders({ "Content-Type": "application/json" });
+            let output_initial_object = { data: initial_data };
+            if(state_builder.getRedirect()) {
+                output_initial_object.route = state_builder.getRedirect();
+            }
 
-            let payload = JSON.stringify(initial_data);
+            let payload = JSON.stringify(output_initial_object);
 
             let comp_min = tools.config.server.compression_min_post;
             if(comp_min && (comp_min >= 0) && (comp_min < payload.length)) {

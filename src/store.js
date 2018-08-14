@@ -22,7 +22,11 @@ var Store = function(actions, decorators) {
         decorators.forEach(function(decorator) {
             var activate = decorator.input.some(keysContain);
             if(activate) {
-                var result = decorator.output.apply(null, decorator.input.map(function(key) { return m_Data[key]; }));
+                try {
+                    var result = decorator.output.apply(null, decorator.input.map(function(key) { return m_Data[key]; }));
+                } catch(err) {
+                    console.error(err);
+                }
                 if(!result) {
                     return;
                 }
@@ -333,12 +337,20 @@ var Store = function(actions, decorators) {
     };
     ///////////////////////////////////
     m_Api.broadcast = function(key, data) {
-        if(m_Callbacks[key] === undefined) {
+        var callbacks = m_Callbacks[key];
+        if(callbacks === undefined) {
             return;
         }
-        for(var i = 0; i < m_Callbacks[key].length; i++) {
-            m_Callbacks[key][i](data);
+        /// callbacks can modify the callbacks array, so best to null invalid ones and clean them up after
+        for (var i = 0; i < callbacks.length; i++) {
+            var call = callbacks[i];
+            if (call !== null) {
+                call(data);
+            }
         }
+        m_Callbacks[key] = callbacks.filter(function (call) {
+            return (call !== null);
+        });
     };
 
     ///////////////////////////////////

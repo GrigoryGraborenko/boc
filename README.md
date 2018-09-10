@@ -11,19 +11,39 @@ The core idea behind BocJS is that both the server and client of a website are o
 
 The true conceptual gulf is between data retrieval and presentation. Each server call will execute a dynamic tree of dependencies based on the request, and output the correct data. That data then gets bundled and sent off to the client for rendering.
 
-##### No more REST
-Rather than creating endless boilerplate RESTful endpoints for every single operation, simply define actions that can be called by the client. These modify the state your components consume, and can make server calls or stay purely client side.
-
-##### Server-side rendering
-Define the functionality of your site via React components that are executed on both the server side and client side. The data consumed by the components on both server and client is identical, so your static HTML will reflect actual data, allowing the user to see a fully-formed site before javascript finishes loading.
-
 ##### Refreshable single page app
-Create a web app that allows pure, instant client-side navigation, but still handles page refreshes and back/forward navigation correctly.
+Create a web app that allows pure, instant client-side navigation, but still handles page refreshes and back/forward navigation correctly. Only make server calls when you need more data or have to modify it. The rest of the time, the user can click around like they are using a desktop app.
 
 #### Automatic hydration of templates
 Any server calls that modify data will then automatically refresh every usage of it, saving you the trouble of writing glue that listens to changes. It doesn't matter what caused the data to change - the usage is decoupled from the processes that create and edit it.
 
+##### Server-side rendering
+Define the functionality of your site via React components that are executed on both the server side and client side. The data consumed by the components on both server and client is identical, so your static HTML will reflect actual data, allowing the user to see a fully-formed site before javascript finishes loading.
+
+##### No more REST
+Rather than creating endless boilerplate RESTful endpoints for every single operation, simply define actions that can be called by the client. These modify the state your components consume, and can make server calls or stay purely client side.
+
+Often one user action needs to do multiple tasks that span multiple entities - shoehorning normal workflow into pure CRUD endpoints doesn't always make sense. Do all your work in one server call, and return whatever data needs to be modified.
+
+##### Modular data assembly
+If you segment your back-end structure along the same fault lines as your data, your server side code can end up a lot more modular and reusable. Define statelets that output particular datasets, then call them whenever you need that data sent to the client.
+
+## Installation
+
+Navigate to an empty directory. Install the initializer with:
+```bash
+npm install boc
+```
+Then choose if you want to seed your project with "minimal", "minimal-sass" or "example". The recommendation is "minimal-sass" for new projects, or "example" to learn BocJS.
+```bash
+boc-init minimal-sass
+npm install
+npm run dev-watch
+```
+That last command will start the server, and restart it when changes to the code are detected. You should now be able to access the app on localhost.
+
 ## Usage
+
 
 ### Actions
 TODO
@@ -37,7 +57,7 @@ TODO
 ### Decorators
 TODO
 
-### License
+## License
 
 BocJS is open source under the MIT Licence. 
 

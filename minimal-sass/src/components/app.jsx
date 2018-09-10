@@ -9,7 +9,7 @@ export default CreateComponent({ }, {
     render() {
         return (
             <div id="app-container">
-                <h1>Minimum Boc Project (with Sass)</h1>
+                <h1>Minimum Boc Project <span>(with Sass)</span></h1>
             </div>
         );
     }

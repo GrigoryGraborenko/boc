@@ -2,10 +2,6 @@
  * Created by Grigory on 20/03/2018.
  */
 
-/**
- * Created by Grigory on 23/02/2017.
- */
-
 import moment from "moment"
 
 const crypto = require('crypto');
@@ -44,17 +40,20 @@ module.exports = {
             await user.update({ session: session, session_valid_until: moment().add(1, "days") });
             builder.outputCookie("session", session);
 
-            return { public: user.get("selfPublic"), user: user };
+            builder.output("user", user.get("selfPublic"));
+            return { user: user };
         }
 
         session = builder.getCookie("session");
         if(session === undefined) {
-            return { public: null, user: null };
+            builder.output("user", null);
+            return { user: null };
         }
 
         var user = await (db.user.findOne({ where: { session: session, session_valid_until: { $gte: moment()}}}));
         if(user === null) {
-            return { public: null, user: null };
+            builder.output("user", null);
+            return { user: null };
         }
 
         if(route.name === "logout") {
@@ -72,6 +71,7 @@ module.exports = {
             return { user: user.get("selfPublic") };
         }
 
-        return { public: user.get("selfPublic"), user: user };
+        builder.output("user", user.get("selfPublic"));
+        return { user: user };
     }
 };

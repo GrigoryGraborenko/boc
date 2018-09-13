@@ -76,7 +76,7 @@ var actions = {
 ```
 Above, you can see that the name of the action is the key "home_page", and it defines the root URL. When the user requests a page, the server iterates through the actions until it finds a match, and then launches the associated statelet. In this case, no entry point is defined, so it defaults to "boot".
 
-The server then asynchronously loads the boot statelet:
+The server then asynchronously loads the boot statelet. Here's an example:
 ```js
 // boot.js
 module.exports = {
@@ -93,6 +93,30 @@ A statelet consists of an object with two keys: a list of dependencies (in this 
 
 The dependencies refer to other statelets, which get executed before process runs and the results injected into the function as arguments. Statelets don't actually need to return anything - the work is mainly done by the ```builder.output(key, value)``` function, which sends data to the client. Those other statelets called by boot can and will output their own data using the same mechanism.
 
+Once the entry point statelet is resolved, and all data has been output, the data decoration begins. Decoration is the process of modifying the data blobs so they can be easily used by the render components. Usages include caching calculated values, creating references between related objects, or providing back-references from child to parent objects (thus creating cyclic data structures). The data sent from server to client is undecorated (it is JSON stringified before decoration), so don't worry about sending too much data, as it exists only temporarily in memory. This process is also repeated on the client side with the exact same data, so make sure your decoration functions are runnable in the browser too.
+
+Here is a typical decorator:
+```js
+const decorators = [
+    {
+        input: ["forum", "threads"]
+        ,output: function(forum, threads) {
+
+            if((!forum) || (!threads)) {
+                return;
+            }
+            threads.forEach(function(thread) {
+                if(thread.forum_id === forum.id) {
+                    thread.forum = forum;
+                    forum.forum_threads.push(thread);
+                }
+            });
+        }
+    }
+```
+The inputs are ```forum``` and  ```threads```, which are data blobs output by the statelets. Here, although they are separate data items, we link them via the decorator. This way, if you have access to the thread, you have access to the forum and vice versa.
+
+The final step is to use this data in a render component.
 
 ### Actions
 

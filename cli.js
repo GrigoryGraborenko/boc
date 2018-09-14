@@ -19,7 +19,7 @@ function getFiles(path, list) {
 
 function execute() {
 
-    var possible = ["example", "minimal", "minimal-sass"];
+    var possible = ["example", "minimal", "minimal-sass", "base"];
 
 
     if((process.argv.length >= 3) && (possible.indexOf(process.argv[2]) >= 0)) {

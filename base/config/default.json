@@ -1,0 +1,31 @@
+{
+  "server": {
+    "port": 80,
+    "compression_min_get": -1,
+    "compression_min_post": -1,
+    "ssl": {
+      "enable": false,
+      "port": 443,
+      "key": null,
+      "cert": null
+    }
+  },
+  "db": {
+    "type": "postgres",
+    "name": "INSERT DB NAME",
+    "username": "root",
+    "password": null,
+    "host": "localhost",
+    "port": null,
+    "logging": false
+  },
+  "logger": {
+    "streams": [
+      { "level": "debug", "type": "rotating-file", "path": "./log/debug.log", "period": "7d", "count": 52 }
+      ,{ "level": "trace", "type": "rotating-file", "path": "./log/trace.log", "period": "7d", "count": 52 }
+    ]
+  },
+  "parameters": {
+    "local_storage": "./cache/"
+  }
+}

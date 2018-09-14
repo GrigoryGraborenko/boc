@@ -1,0 +1,45 @@
+{
+  "server": {
+    "port": 80,
+    "ssl": {
+      "enable": false,
+      "port": 443,
+      "ca": "cert/*.ca-bundle",
+      "key": "cert/*.key",
+      "cert": "cert/*.crt"
+    }
+  },
+  "db": {
+    "type": "postgres",
+    "name": "INSERT DB NAME",
+    "username": "postgres",
+    "password": "",
+    "host": "localhost",
+    "port": null,
+    "logging": false
+  },
+  "logger": {
+    "streams": [
+      { "level": "debug", "type": "rotating-file", "path": "./log/debug.log", "period": "7d", "count": 52 }
+      ,{ "level": "trace", "type": "rotating-file", "path": "./log/trace.log", "period": "1d", "count": 14 }
+    ]
+  },
+  "mailer": {
+    "transport": null,
+    "host": null,
+    "user": null,
+    "password": null,
+    "disable_send": true,
+    "test_recipient": null
+  },
+  "parameters": {
+    "file": {
+      "local_storage": "./cache/"
+      ,"temp_storage": "./temp/"
+      ,"use_s3": false
+      ,"s3_bucket": ""
+      ,"s3_access": ""
+      ,"s3_secret": ""
+    }
+  }
+}

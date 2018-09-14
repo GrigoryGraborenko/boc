@@ -1,0 +1,10 @@
+{
+  "fixtures": [
+    { "table": "user", "table_name": "user_record", "objects": {
+      "admin_user": { "email": "alice@gmail.com", "role": "admin", "password": "password", "salt": "salt" }
+      ,"client_user": { "email": "bob@gmail.com", "role": "user", "password": "password", "salt": "salt" }
+      ,"admin_user_auth": { "email": "liz@gmail.com", "role": "admin", "password": "password", "salt": "salt", "session": "session_admin", "session_valid_until": "2030-01-01" }
+      ,"client_user_auth": { "email": "sally@gmail.com", "role": "user", "password": "password", "salt": "salt", "session": "session_client", "session_valid_until": "2030-01-01" }
+    }}
+  ]
+}

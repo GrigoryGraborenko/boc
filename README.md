@@ -34,7 +34,7 @@ Navigate to an empty directory. Install the initializer with:
 ```bash
 npm install boc
 ```
-Then choose if you want to seed your project with "minimal", "minimal-sass" or "example". The recommendation is "minimal-sass" for new projects, or "example" to learn BocJS.
+Then choose if you want to seed your project with "minimal", "minimal-sass" or "example". The recommendation is "minimal-sass" for new projects, "example" to learn BocJS, or "base" to start with most of what you need for a new project.
 ```bash
 boc-init minimal-sass
 npm install
@@ -71,10 +71,12 @@ The entry point is the key-value list of actions. This gets passed into the serv
 
 ```js
 var actions = {
-    "home_page": { url: "/" }
+    "thread": { url: "/thread/:thread_id/:page", defaults: { page: null }, server: true, post: true }
+    ,"forum": { url: "/:forum_name/:page", defaults: { page: null }, server: true, post: true, entry: "boot" }
+    ,"home_page": { url: "/" }
 };
 ```
-Above, you can see that the name of the action is the key "home_page", and it defines the root URL. When the user requests a page, the server iterates through the actions until it finds a match, and then launches the associated statelet. In this case, no entry point is defined, so it defaults to "boot".
+Above, you can see that the name of the last action is the key "home_page", and it defines the root URL. When the user requests a page, the server iterates through the actions until it finds a match, and then launches the associated statelet. In this case, no entry point is defined, so it defaults to "boot".
 
 The server then asynchronously loads the boot statelet. Here's an example:
 ```js
@@ -116,7 +118,46 @@ const decorators = [
 ```
 The inputs are ```forum``` and  ```threads```, which are data blobs output by the statelets. Here, although they are separate data items, we link them via the decorator. This way, if you have access to the thread, you have access to the forum and vice versa.
 
-The final step is to use this data in a render component.
+The final step is to use this data in a render component. You must provide a single root component to the server on startup - this then becomes the entry point for all rendering of state.
+
+```js
+const React = require('react');
+const CreateComponent = require('boc/component')(React);
+
+import Forum from './forum.jsx';
+import Thread from './thread.jsx';
+
+export default CreateComponent({ user : "user", route: "route", forums: "forum_list" }, {
+    renderForum(item) {
+        // ...
+    }
+    ,render() {
+
+        var page = null;
+        if(this.props.route.name === "forum") {
+            page = <Forum store={ this.props.store }/>;
+        } else if(this.props.route.name === "thread") {
+            page = <Thread store={ this.props.store } />;
+        } else {
+            page = (
+                <div>
+                    <h1>Example</h1>
+                    { this.props.forums.map(this.renderForum) }
+                </div>
+            );
+        }
+
+        return (
+            <div id="app-container">
+                { page }
+            </div>
+        );
+    }
+});
+
+
+```
+Here, this one component acts like a switch for directing rendering to the correct component. The switching is done by route name matching, thus creating the behaviour of showing different pages when you navigate to different URL's. Up top, the ``CreateComponent`` function takes a key-value mapping of data blobs to component props. The keys define the prop keys, and the values define what data blob to hook up. So in this example, a data blob "forum_list" was output by one of the statelets, and then it was decorated. You then have access to it in any component than needs it, not just the top level component.
 
 ### Actions
 

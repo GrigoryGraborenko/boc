@@ -1,6 +1,6 @@
 
 module.exports = {
-    dependencies: []
-    ,process: async function(builder, db, route) {
+    dependencies: ["user"]
+    ,process: async function(builder, db, route, user) {
     }
 };

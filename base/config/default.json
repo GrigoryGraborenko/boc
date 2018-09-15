@@ -26,6 +26,19 @@
     ]
   },
   "parameters": {
-    "local_storage": "./cache/"
+    "file": {
+      "local_storage": "./cache/"
+      ,"temp_storage": "./temp/"
+      ,"use_s3": false
+      ,"s3_bucket": ""
+      ,"s3_access": ""
+      ,"s3_secret": ""
+    },
+    "fixtures": {
+      "seed": {
+        "password": ""
+        ,"salt": ""
+      }
+    }
   }
 }

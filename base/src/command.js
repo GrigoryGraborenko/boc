@@ -3,6 +3,8 @@ import fs from 'fs';
 import Sequelize from 'sequelize';
 import moment from 'moment';
 
+import { InitFixtures, LoadFixtures } from './utils';
+
 module.exports = async function(sequelize, db, logger, args, config) {
 
     var call = args[0];
@@ -80,7 +82,14 @@ module.exports = async function(sequelize, db, logger, args, config) {
 
             await transaction.commit();
 
-            return "Complete";
+            if(call !== "schema:load:all") {
+                return "Complete";
+            }
+        case "fixtures:load":
+            var { fixtures, reset_query } = await InitFixtures(params[0]);
+            await sequelize.query(reset_query);
+            await LoadFixtures(db, fixtures, config.fixtures.seed);
+            return "Fixtures loaded";
         case "migrations:create":
             let data = "'use strict';\n\nconst Sequelize = require('sequelize');\n\nmodule.exports = {\n    up: async function (query_interface, sequelize, transaction) {\n    }\n    ,down: async function (query_interface, sequelize, transaction) {\n    }\n};"
             fs.writeFileSync("./migrations/" + moment().unix() + ".js", data);
@@ -89,17 +98,14 @@ module.exports = async function(sequelize, db, logger, args, config) {
             await sequelize.sync();
             return "Synced database";
         case "user:create":
-            if(params.length < 4) {
-                throw "Needs email, access level, first name and last name";
+            if(params.length < 2) {
+                throw "Needs email, access level";
             }
             await db.user.create({
                 email: params[0]
                 ,role: params[1]
-                // ,given_names: params[2]
-                // ,last_name: params[3]
             });
             return "Created user";
-
         case "user:password:set":
             if(params.length < 2) {
                 throw "Needs two parameters - email and password";

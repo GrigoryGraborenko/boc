@@ -159,10 +159,76 @@ export default CreateComponent({ user : "user", route: "route", forums: "forum_l
 ```
 Here, this one component acts like a switch for directing rendering to the correct component. The switching is done by route name matching, thus creating the behaviour of showing different pages when you navigate to different URL's. Up top, the ``CreateComponent`` function takes a key-value mapping of data blobs to component props. The keys define the prop keys, and the values define what data blob to hook up. So in this example, a data blob "forum_list" was output by one of the statelets, and then it was decorated. You then have access to it in any component than needs it, not just the top level component.
 
+The final aspect of the system that completes the loop is calling actions. Within a component's event handlers (never the render function!), you can call ``this.action``. For example:
+```js
+this.action("thread", { thread_id: "abc-123" });
+```
+Since the action ``thread`` has been defined above with ``server: true``, a server call will be made with this route name and data. The boot statelet will execute, and "thread_id" will be available. It is then the statelet's job to respond correctly, doing access/security checks, and then output the correct data. The decorators will then run and all components that have subscribed to that data will update.
+
 ### Actions
 
+Actions are a key-value object of objects that specify the endpoints of your app.
+```js
+var actions = {
+    action_one: {}
+    ,action_two: { url: "/", server: true, post: true, entry: "statelet_name" }
+    ,action_three: { server: true, post: true }
+};
+```
+###### url ``optional [string]``
+Setting a URL on an action allows it to trigger on a GET request with a matching url pattern. To parameterize all or part of the url string, add ``:`` in front of the segment string, and whatever the user sends within that segment gets added as a route parameter. URL's are matched in the order provided, and the first one that matches will trigger that action.
+```js
+    // will not have thing_id entry in route params
+    // ensure this is earlier, to ensure "all" goes to this action and not the next one
+    ,action_all: { url: "/home/look-at/all" }
 
-TODO
+    // if given "/home/look-at/123", route params will have { thing_id: "123" }
+    // "/home/look-at/all" will not end up in this action
+    ,action_specific: { url: "/home/look-at/:thing_id" }
+```
+Not specifying a URL means it can only be accessed via a POST request. Note that currently this framework does not allow DELETE, PUT or any other types of HTTP requests, and there are no plans to support it. Any action can delete, update, create or do whatever it wants on the serverside - just try and keep the action name meaningful.
+
+###### defaults ``optional [object]``
+Use this in conjunction with a URL value, and you want various url segments to have default values when the URL would otherwise not match. For example:
+```js
+    // given a URL of "/things/123", this will pass route params of { project_id: "123", thing_id: null }
+    // given a URL of "/things/123/abc", this will pass route params of { project_id: "123", thing_id: "abc" }
+    // a URL of "/things" will not match, because project_id has no default
+    ,action_name: { url: "/things/:project_id/:thing_id", defaults: { thing_id: null } }
+```
+
+###### server ``optional [boolean | string array]``
+If set to true, this action will always make a server call. If given an array, it will only trigger a server call when that specific parameter changes.
+```js
+    ,action_client_only: { url: "/smerg" }
+    ,action_always_server: { url: "/blah", server: true }
+
+    // server will be called when the thing_id part of the URL changes
+    ,action_sometimes_server: { url: "/blah/:project_id/:thing_id", server: ["thing_id"] }
+```
+
+###### post ``optional [boolean]``
+Set this to true when you want an action with a URL to be called as a simple POST request without navigation.
+
+###### entry ``optional [string]``
+The name of the statelet the server call should start in. Any data output by previous calls will persist in client-side memory, so pushing all data every time is not necessary. This allows you to target a specific statelet to update only the data you need.
+
+###### store ``optional [function]``
+
+This function takes action parameters and returns a key-value object of items you want stored as cookies.
+```js
+    // sets the selected_project_id cookie, and makes a server call
+    ,change_project: { server: true, store: function(input) {
+        return { selected_project_id: input.project_id };
+    }}
+```
+This is a useful pattern for when you want some persistent variables that can also be accessed on the server side.
+
+###### upload ``optional [string]``
+If you want this action to accept uploaded files, this string will become the key in the route params that contains the files uploaded.
+
+###### file ``optional [MIME type string]``
+If this action is the direct endpoint of a file you can view or download, this string is the MIME type send to the client in the headers.
 
 ### Statelets
 TODO

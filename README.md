@@ -231,9 +231,74 @@ If you want this action to accept uploaded files, this string will become the ke
 If this action is the direct endpoint of a file you can view or download, this string is the MIME type send to the client in the headers.
 
 ### Statelets
+Statelets are passed into the server initialization as a key-value object of objects. How you do this is up to you, but the recommendation is to have each statelet live in it's own file, like so:
+```js
+// thing.js
+module.exports = {
+    dependencies: ["user", "project"]
+    ,process: async function(builder, db, route, project) {
+
+        if(!project.is_alright) {
+            return;
+        }
+
+        var things = await db.things.findAll();
+
+        builder.output("things", things.map(function(item) {
+            return item.get('public');
+        }));
+    }
+};
+```
+Each statelet has two mandatory values:
+###### dependencies [array]
+An array of statelet names. If you were to define statelets like so:
+```js
+const statelets = {
+    statelet_one: {
+        dependencies: []
+        ,process: async function(builder, db, route) {
+            // do something...
+            return { ok: true, hi: "there" };
+        }
+    }
+    ,statelet_two: {
+        dependencies: ["statelet_one"]
+        ,process: async function(builder, db, route, statelet_one) {
+            // the value of statelet_one should be { ok: true, hi: "there" }
+            // do something...
+        }
+    }
+    ,statelet_three: {
+        dependencies: ["statelet_one", "statelet_two"]
+        ,process: async function(builder, db, route, statelet_one, statelet_two) {
+            // do something...
+        }
+    }
+};
+```
+Then entering a server call at statelet_three (like with `` action_name: { entry: "statelet_three" }`` in actions) would execute "statelet_one" first, then "statelet_two", then "statelet_three" last. This is because of the dependencies list. If you want more dynamic dependency behaviour, you can leave that list empty and call other statelets dynamically inside the process function.
+###### process [function]
+This is where the server does all the work. Here, you create database entities, make external API calls, delete entities, read files, build empires, etc. Split up the server code into logical modular blocks and give each one a statelet - then they can call each other when needed. The process function takes three mandatory arguments: ``builder``, ``db`` and ``route``. Each dependency then gets added to the list of arguments. ``builder`` is the serverside state builder, and has lots of useful utility functions. ``db`` is whatever ORM you passed into the server init -  the example projects uses Sequelize. ``route`` is an object that contains parameters about the server call, and should be used to make decisions about what to execute. A typical ``route`` looks like:
+```js
+// route =
+{
+    name: 'action_name',
+    params: {
+        some_client_side_data: 123
+    },
+    page: 'action_name_of_current_page',
+    files: { action_upload_string: [] } // optional, only exists when upload is defined
+}
+```
+
+### Serverside State Builder
 TODO
 
 ### Components
+TODO
+
+### Clientside Store
 TODO
 
 ### Decorators

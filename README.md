@@ -231,7 +231,7 @@ If you want this action to accept uploaded files, this string will become the ke
 If this action is the direct endpoint of a file you can view or download, this string is the MIME type send to the client in the headers.
 
 ### Statelets
-Statelets are passed into the server initialization as a key-value object of objects. How you do this is up to you, but the recommendation is to have each statelet live in it's own file, like so:
+Statelets are passed into the server initialization as a key-value object of objects. Each one can only be executed once per server call. How you do this is up to you, but the recommendation is to have each statelet live in it's own file, like so:
 ```js
 // thing.js
 module.exports = {
@@ -251,7 +251,7 @@ module.exports = {
 };
 ```
 Each statelet has two mandatory values:
-###### dependencies [array]
+#### dependencies [array]
 An array of statelet names. If you were to define statelets like so:
 ```js
 const statelets = {
@@ -278,7 +278,7 @@ const statelets = {
 };
 ```
 Then entering a server call at statelet_three (like with `` action_name: { entry: "statelet_three" }`` in actions) would execute "statelet_one" first, then "statelet_two", then "statelet_three" last. This is because of the dependencies list. If you want more dynamic dependency behaviour, you can leave that list empty and call other statelets dynamically inside the process function.
-###### process [function]
+#### process [function]
 This is where the server does all the work. Here, you create database entities, make external API calls, delete entities, read files, build empires, etc. Split up the server code into logical modular blocks and give each one a statelet - then they can call each other when needed. The process function takes three mandatory arguments: ``builder``, ``db`` and ``route``. Each dependency then gets added to the list of arguments. ``builder`` is the serverside state builder, and has lots of useful utility functions. ``db`` is whatever ORM you passed into the server init -  the example projects uses Sequelize. ``route`` is an object that contains parameters about the server call, and should be used to make decisions about what to execute. A typical ``route`` looks like:
 ```js
 // route =
@@ -293,7 +293,58 @@ This is where the server does all the work. Here, you create database entities, 
 ```
 
 ### Serverside State Builder
-TODO
+All statelets have the serverside state builder passed in as the first argument of their process function. It is a singular object constructed at the beginning of a server request and persists until the end of the request. The main purpose is to give dynamic access to other statelets inside the process function. These are the available functions:
+
+###### output ``(string, object) or (object) => ``
+This is the most critical function the builder has, and is the main way the server communicates with the client.
+When you call it with a string and an object, the server will send the object to the client attatched to the string.
+```js
+// key value synax
+builder.output("things", [1, 2, 3, { a: 10, b: 20 }]);
+builder.output("other_thing", 1234);
+// object syntax
+builder.output({ things: [1, 2, 3, { a: 10, b: 20 }], other_thing: 1234 });
+```
+When called with just a key-value object, this outputs a series of data blobs with each value attached to it's key.
+The data is not sent immediately - only when the entry statelet finishes execution. In the meantime, it can be overwritten as much as you want. ###### get ``async (string) => return value of statelet``
+Gets the return value of another statelet. If it has been executed already during this server request, it returns immediately. Otherwise you should await the result. Any outputs that statelet creates works exactly as normal. A common use case might be to call the statelet and not even use the return value - simply calling it so that it outputs it's data to the client.
+###### isGetRequest ``() => boolean``
+Returns true if the request is a GET as opposed to a POST.
+###### getParam ``(string) => object``
+Gets a value with the given key from the config file.
+###### getRequest ``() => request object``
+Gets the NodeJS request object that started this server call.
+###### getSequelizeInstance ``() => ORM instance``
+Gets the ORM instance. You could probably use a different ORM.
+###### getLogger ``() => logger instance``
+Gets the logger instance.
+###### getCookie ``(string) => string``
+Gets a cookie of the given key.
+###### getOutputCookies ``() => object``
+Gets all the cookies that have currently been output by statelets.
+###### getAllCookies ``() => object``
+Gets all the cookies that have currently been output by statelets as well as originally submitted.
+###### getRedirect ``() => object``
+Gets the object that contains the action name and parameters of the redirect given by a statelet.
+###### redirect ``(string, object) => ``
+When called by a statelet, this redirects the client to this action with an object containing the parameters.
+###### transaction ``async () => transaction object``
+Creates a new transaction using the ORM
+###### log ``(string, string, optional object) => ``
+Given a log level and message, this calls the function with the key given by the first arg of the current logger with the second arg, and optionally the third arg as well.
+###### outputCookie ``(string, string, boolean) => ``
+Given a name and a value, this sets a cookie on the client side. This cookie defaults to read-only (HTTP only), unless ``false`` is passed in as the third parameter.
+###### outputToFile ``(buffer, optional string) => ``
+Use this to return a file. If you it a filename, the file is downloaded, otherwise it's displayed. Can be called multiple times, and each time the data will be appended.
+###### setOutputFileName ``() => ``
+###### outputHeader ``() => ``
+###### manualResponse ``() => ``
+###### getManualResponse ``() => ``
+###### decorateData ``() => ``
+###### getOutput ``() => ``
+###### getAllOutputHeaders ``() => ``
+###### getFileOutput ``() => ``
+
 
 ### Components
 TODO

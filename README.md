@@ -122,7 +122,8 @@ The final step is to use this data in a render component. You must provide a sin
 
 ```js
 const React = require('react');
-const CreateComponent = require('boc/component')(React);
+const CreateReactClass = require('create-react-class');
+const CreateComponent = require('boc/component')(React, CreateReactClass);
 
 import Forum from './forum.jsx';
 import Thread from './thread.jsx';
@@ -354,10 +355,61 @@ Given an object, this appends the currently set output headers (including cookie
 Gets the output buffer created by ``outputToFile``.
 
 ### Components
+You can use regular react components, but in order to take full advantage of BocJS, it is recommended that you use the framework's wrapper for them.
+```js
+
+const React = require('react');
+const CreateReactClass = require('create-react-class');
+// since you pass React into the framework, this means you can chose what version you want to use. v16 and above need the CreateReactClass external library
+const CreateComponent = require('boc/component')(React, CreateReactClass);
+
+export default CreateComponent({ prop_key: "data_key", things: "things", route: "route", pending: "_pending" }, {
+    getInitialState() {
+        return {};
+    }
+    ,componentDidMount() {
+        console.log("Hi, this will only execute on the client");
+    }
+    ,handleThing() {
+        this.action("action_name", { thing_id: 123 });
+    }
+    ,render() {
+        return (
+            <div onClick={ this.handleThing } >
+                You are at { this.props.route.name }
+            </div>
+        );
+    }
+});
+
+```
+The ``CreateComponent`` function takes two arguments: a key-value object of prop keys and data keys which maps data blobs to the component's props, and a object that defines a React class. When the server updates one of the data blobs mapped by a component, all the components that rely on it will re-render with the new, updated and decorated state. This is where it all comes together: you write the component without having to worry about data lifecycles. Anywhere you use a datablob, you can be assured that it will always have the latest data that the server comes back with.
+
+If you want to call an action, do it from an event handler or similar - never call it from a render function!
+
+Some data blobs are built-in, and can be used regardless of what you output in statelets:
+###### route
+###### _pending
+###### _error
+###### _success
+Coming soon
+
 TODO
 
 ### Clientside Store
 TODO
+
+###### action
+###### actionFile
+###### generateURL
+###### isClientContext
+###### processURL
+###### setInitialData
+###### get
+###### subscribe
+###### unsubscribe
+###### broadcast
+
 
 ### Decorators
 TODO

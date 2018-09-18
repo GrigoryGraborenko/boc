@@ -336,15 +336,22 @@ Given a log level and message, this calls the function with the key given by the
 Given a name and a value, this sets a cookie on the client side. This cookie defaults to read-only (HTTP only), unless ``false`` is passed in as the third parameter.
 ###### outputToFile ``(buffer, optional string) => ``
 Use this to return a file. If you it a filename, the file is downloaded, otherwise it's displayed. Can be called multiple times, and each time the data will be appended.
-###### setOutputFileName ``() => ``
-###### outputHeader ``() => ``
-###### manualResponse ``() => ``
-###### getManualResponse ``() => ``
-###### decorateData ``() => ``
-###### getOutput ``() => ``
-###### getAllOutputHeaders ``() => ``
-###### getFileOutput ``() => ``
-
+###### setOutputFileName ``(string) => ``
+Yep.
+###### outputHeader ``(string, string, boolean) => ``
+Given the name of the header, the value, outputs that header in the response to the client. If the third arg is true, multiple instances of that header will be output, which is useful for cookies and so forth.
+###### manualResponse ``(string, object, buffer) => ``
+When all else fails, you can respond with an HTTP response code, an object key-value set of headers, and a response body buffer.
+###### getManualResponse ``() => boolean``
+Checks to see if a manual response has been outputted.
+###### decorateData ``(object) => object``
+This function is useful for when you need access to data in it's decorated form, as opposed to the raw form you usually get in statelets. Pass in a key-value object with the data blobs and the decorators will run for you.
+###### getOutput ``(optional string) => object``
+Retrieve the data in it's raw form before it's sent to the client. If you pass in a string, you only get the data for that key. If you pass nothing in, you get the whole set of key-values.
+###### getAllOutputHeaders ``(object) => object``
+Given an object, this appends the currently set output headers (including cookies), and returns the result. Mainly for internal use, but it's there if you want it for some reason.
+###### getFileOutput ``() => object``
+Gets the output buffer created by ``outputToFile``.
 
 ### Components
 TODO

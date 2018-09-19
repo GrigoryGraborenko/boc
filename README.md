@@ -93,7 +93,7 @@ module.exports = {
 
 A statelet consists of an object with two keys: a list of dependencies (in this case, "user" and "forum") and a process function. The process function is where you do whatever the server needs to do, and output your data.
 
-The dependencies refer to other statelets, which get executed before process runs and the results injected into the function as arguments. Statelets don't actually need to return anything - the work is mainly done by the ```builder.output(key, value)``` function, which sends data to the client. Those other statelets called by boot can and will output their own data using the same mechanism.
+The dependencies refer to other statelets, which get executed before process runs and the results injected into the function as arguments. Statelets don't actually need to return anything - the work is mainly done by the `builder.output(key, value)` function, which sends data to the client. Those other statelets called by boot can and will output their own data using the same mechanism.
 
 Once the entry point statelet is resolved, and all data has been output, the data decoration begins. Decoration is the process of modifying the data blobs so they can be easily used by the render components. Usages include caching calculated values, creating references between related objects, or providing back-references from child to parent objects (thus creating cyclic data structures). The data sent from server to client is undecorated (it is JSON stringified before decoration), so don't worry about sending too much data, as it exists only temporarily in memory. This process is also repeated on the client side with the exact same data, so make sure your decoration functions are runnable in the browser too.
 
@@ -116,7 +116,7 @@ const decorators = [
         }
     }
 ```
-The inputs are ```forum``` and  ```threads```, which are data blobs output by the statelets. Here, although they are separate data items, we link them via the decorator. This way, if you have access to the thread, you have access to the forum and vice versa.
+The inputs are `forum` and  `threads`, which are data blobs output by the statelets. Here, although they are separate data items, we link them via the decorator. This way, if you have access to the thread, you have access to the forum and vice versa.
 
 The final step is to use this data in a render component. You must provide a single root component to the server on startup - this then becomes the entry point for all rendering of state.
 
@@ -158,13 +158,13 @@ export default CreateComponent({ user : "user", route: "route", forums: "forum_l
 
 
 ```
-Here, this one component acts like a switch for directing rendering to the correct component. The switching is done by route name matching, thus creating the behaviour of showing different pages when you navigate to different URL's. Up top, the ``CreateComponent`` function takes a key-value mapping of data blobs to component props. The keys define the prop keys, and the values define what data blob to hook up. So in this example, a data blob "forum_list" was output by one of the statelets, and then it was decorated. You then have access to it in any component than needs it, not just the top level component.
+Here, this one component acts like a switch for directing rendering to the correct component. The switching is done by route name matching, thus creating the behaviour of showing different pages when you navigate to different URL's. Up top, the `CreateComponent` function takes a key-value mapping of data blobs to component props. The keys define the prop keys, and the values define what data blob to hook up. So in this example, a data blob "forum_list" was output by one of the statelets, and then it was decorated. You then have access to it in any component than needs it, not just the top level component.
 
-The final aspect of the system that completes the loop is calling actions. Within a component's event handlers (never the render function!), you can call ``this.action``. For example:
+The final aspect of the system that completes the loop is calling actions. Within a component's event handlers (never the render function!), you can call `this.action`. For example:
 ```js
 this.action("thread", { thread_id: "abc-123" });
 ```
-Since the action ``thread`` has been defined above with ``server: true``, a server call will be made with this route name and data. The boot statelet will execute, and "thread_id" will be available. It is then the statelet's job to respond correctly, doing access/security checks, and then output the correct data. The decorators will then run and all components that have subscribed to that data will update.
+Since the action `thread` has been defined above with `server: true`, a server call will be made with this route name and data. The boot statelet will execute, and "thread_id" will be available. It is then the statelet's job to respond correctly, doing access/security checks, and then output the correct data. The decorators will then run and all components that have subscribed to that data will update.
 
 ### Actions
 
@@ -176,8 +176,8 @@ var actions = {
     ,action_three: { server: true, post: true }
 };
 ```
-###### url ``optional [string]``
-Setting a URL on an action allows it to trigger on a GET request with a matching url pattern. To parameterize all or part of the url string, add ``:`` in front of the segment string, and whatever the user sends within that segment gets added as a route parameter. URL's are matched in the order provided, and the first one that matches will trigger that action.
+###### url `optional [string]`
+Setting a URL on an action allows it to trigger on a GET request with a matching url pattern. To parameterize all or part of the url string, add `:` in front of the segment string, and whatever the user sends within that segment gets added as a route parameter. URL's are matched in the order provided, and the first one that matches will trigger that action.
 ```js
     // will not have thing_id entry in route params
     // ensure this is earlier, to ensure "all" goes to this action and not the next one
@@ -189,7 +189,7 @@ Setting a URL on an action allows it to trigger on a GET request with a matching
 ```
 Not specifying a URL means it can only be accessed via a POST request. Note that currently this framework does not allow DELETE, PUT or any other types of HTTP requests, and there are no plans to support it. Any action can delete, update, create or do whatever it wants on the serverside - just try and keep the action name meaningful.
 
-###### defaults ``optional [object]``
+###### defaults `optional [object]`
 Use this in conjunction with a URL value, and you want various url segments to have default values when the URL would otherwise not match. For example:
 ```js
     // given a URL of "/things/123", this will pass route params of { project_id: "123", thing_id: null }
@@ -198,7 +198,7 @@ Use this in conjunction with a URL value, and you want various url segments to h
     ,action_name: { url: "/things/:project_id/:thing_id", defaults: { thing_id: null } }
 ```
 
-###### server ``optional [boolean | string array]``
+###### server `optional [boolean | string array]`
 If set to true, this action will always make a server call. If given an array, it will only trigger a server call when that specific parameter changes.
 ```js
     ,action_client_only: { url: "/smerg" }
@@ -208,13 +208,13 @@ If set to true, this action will always make a server call. If given an array, i
     ,action_sometimes_server: { url: "/blah/:project_id/:thing_id", server: ["thing_id"] }
 ```
 
-###### post ``optional [boolean]``
+###### post `optional [boolean]`
 Set this to true when you want an action with a URL to be called as a simple POST request without navigation.
 
-###### entry ``optional [string]``
+###### entry `optional [string]`
 The name of the statelet the server call should start in. Any data output by previous calls will persist in client-side memory, so pushing all data every time is not necessary. This allows you to target a specific statelet to update only the data you need.
 
-###### store ``optional [function]``
+###### store `optional [function]`
 
 This function takes action parameters and returns a key-value object of items you want stored as cookies.
 ```js
@@ -225,10 +225,10 @@ This function takes action parameters and returns a key-value object of items yo
 ```
 This is a useful pattern for when you want some persistent variables that can also be accessed on the server side.
 
-###### upload ``optional [string]``
+###### upload `optional [string]`
 If you want this action to accept uploaded files, this string will become the key in the route params that contains the files uploaded.
 
-###### file ``optional [MIME type string]``
+###### file `optional [MIME type string]`
 If this action is the direct endpoint of a file you can view or download, this string is the MIME type send to the client in the headers.
 
 ### Statelets
@@ -278,9 +278,9 @@ const statelets = {
     }
 };
 ```
-Then entering a server call at statelet_three (like with `` action_name: { entry: "statelet_three" }`` in actions) would execute "statelet_one" first, then "statelet_two", then "statelet_three" last. This is because of the dependencies list. If you want more dynamic dependency behaviour, you can leave that list empty and call other statelets dynamically inside the process function.
+Then entering a server call at statelet_three (like with `action_name: { entry: "statelet_three" }` in actions) would execute "statelet_one" first, then "statelet_two", then "statelet_three" last. This is because of the dependencies list. If you want more dynamic dependency behaviour, you can leave that list empty and call other statelets dynamically inside the process function.
 #### process [function]
-This is where the server does all the work. Here, you create database entities, make external API calls, delete entities, read files, build empires, etc. Split up the server code into logical modular blocks and give each one a statelet - then they can call each other when needed. The process function takes three mandatory arguments: ``builder``, ``db`` and ``route``. Each dependency then gets added to the list of arguments. ``builder`` is the serverside state builder, and has lots of useful utility functions. ``db`` is whatever ORM you passed into the server init -  the example projects uses Sequelize. ``route`` is an object that contains parameters about the server call, and should be used to make decisions about what to execute. A typical ``route`` looks like:
+This is where the server does all the work. Here, you create database entities, make external API calls, delete entities, read files, build empires, etc. Split up the server code into logical modular blocks and give each one a statelet - then they can call each other when needed. The process function takes three mandatory arguments: `builder`, `db` and `route`. Each dependency then gets added to the list of arguments. `builder` is the serverside state builder, and has lots of useful utility functions. `db` is whatever ORM you passed into the server init -  the example projects uses Sequelize. `route` is an object that contains parameters about the server call, and should be used to make decisions about what to execute. A typical `route` looks like:
 ```js
 // route =
 {
@@ -296,7 +296,7 @@ This is where the server does all the work. Here, you create database entities, 
 ### Serverside State Builder
 All statelets have the serverside state builder passed in as the first argument of their process function. It is a singular object constructed at the beginning of a server request and persists until the end of the request. The main purpose is to give dynamic access to other statelets inside the process function. These are the available functions:
 
-###### output ``(string, object) or (object) => ``
+###### output `(string, object) or (object) => `
 This is the most critical function the builder has, and is the main way the server communicates with the client.
 When you call it with a string and an object, the server will send the object to the client attatched to the string.
 ```js
@@ -307,52 +307,53 @@ builder.output("other_thing", 1234);
 builder.output({ things: [1, 2, 3, { a: 10, b: 20 }], other_thing: 1234 });
 ```
 When called with just a key-value object, this outputs a series of data blobs with each value attached to it's key.
-The data is not sent immediately - only when the entry statelet finishes execution. In the meantime, it can be overwritten as much as you want. ###### get ``async (string) => return value of statelet``
+The data is not sent immediately - only when the entry statelet finishes execution. In the meantime, it can be overwritten as much as you want.
+###### get `async (string) => return value of statelet`
 Gets the return value of another statelet. If it has been executed already during this server request, it returns immediately. Otherwise you should await the result. Any outputs that statelet creates works exactly as normal. A common use case might be to call the statelet and not even use the return value - simply calling it so that it outputs it's data to the client.
-###### isGetRequest ``() => boolean``
+###### isGetRequest `() => boolean`
 Returns true if the request is a GET as opposed to a POST.
-###### getParam ``(string) => object``
+###### getParam `(string) => object`
 Gets a value with the given key from the config file.
-###### getRequest ``() => request object``
+###### getRequest `() => request object`
 Gets the NodeJS request object that started this server call.
-###### getSequelizeInstance ``() => ORM instance``
+###### getSequelizeInstance `() => ORM instance`
 Gets the ORM instance. You could probably use a different ORM.
-###### getLogger ``() => logger instance``
+###### getLogger `() => logger instance`
 Gets the logger instance.
-###### getCookie ``(string) => string``
+###### getCookie `(string) => string`
 Gets a cookie of the given key.
-###### getOutputCookies ``() => object``
+###### getOutputCookies `() => object`
 Gets all the cookies that have currently been output by statelets.
-###### getAllCookies ``() => object``
+###### getAllCookies `() => object`
 Gets all the cookies that have currently been output by statelets as well as originally submitted.
-###### getRedirect ``() => object``
+###### getRedirect `() => object`
 Gets the object that contains the action name and parameters of the redirect given by a statelet.
-###### redirect ``(string, object) => ``
+###### redirect `(string, object) => `
 When called by a statelet, this redirects the client to this action with an object containing the parameters.
-###### transaction ``async () => transaction object``
+###### transaction `async () => transaction object`
 Creates a new transaction using the ORM
-###### log ``(string, string, optional object) => ``
+###### log `(string, string, optional object) => `
 Given a log level and message, this calls the function with the key given by the first arg of the current logger with the second arg, and optionally the third arg as well.
-###### outputCookie ``(string, string, boolean) => ``
-Given a name and a value, this sets a cookie on the client side. This cookie defaults to read-only (HTTP only), unless ``false`` is passed in as the third parameter.
-###### outputToFile ``(buffer, optional string) => ``
+###### outputCookie `(string, string, boolean) => `
+Given a name and a value, this sets a cookie on the client side. This cookie defaults to read-only (HTTP only), unless `false` is passed in as the third parameter.
+###### outputToFile `(buffer, optional string) => `
 Use this to return a file. If you it a filename, the file is downloaded, otherwise it's displayed. Can be called multiple times, and each time the data will be appended.
-###### setOutputFileName ``(string) => ``
+###### setOutputFileName `(string) => `
 Yep.
-###### outputHeader ``(string, string, boolean) => ``
+###### outputHeader `(string, string, boolean) => `
 Given the name of the header, the value, outputs that header in the response to the client. If the third arg is true, multiple instances of that header will be output, which is useful for cookies and so forth.
-###### manualResponse ``(string, object, buffer) => ``
+###### manualResponse `(string, object, buffer) => `
 When all else fails, you can respond with an HTTP response code, an object key-value set of headers, and a response body buffer.
-###### getManualResponse ``() => boolean``
+###### getManualResponse `() => boolean`
 Checks to see if a manual response has been outputted.
-###### decorateData ``(object) => object``
+###### decorateData `(object) => object`
 This function is useful for when you need access to data in it's decorated form, as opposed to the raw form you usually get in statelets. Pass in a key-value object with the data blobs and the decorators will run for you.
-###### getOutput ``(optional string) => object``
+###### getOutput `(optional string) => object`
 Retrieve the data in it's raw form before it's sent to the client. If you pass in a string, you only get the data for that key. If you pass nothing in, you get the whole set of key-values.
-###### getAllOutputHeaders ``(object) => object``
+###### getAllOutputHeaders `(object) => object`
 Given an object, this appends the currently set output headers (including cookies), and returns the result. Mainly for internal use, but it's there if you want it for some reason.
-###### getFileOutput ``() => object``
-Gets the output buffer created by ``outputToFile``.
+###### getFileOutput `() => object`
+Gets the output buffer created by `outputToFile`.
 
 ### Components
 You can use regular react components, but in order to take full advantage of BocJS, it is recommended that you use the framework's wrapper for them.
@@ -384,7 +385,7 @@ export default CreateComponent({ prop_key: "data_key", things: "things", route: 
 });
 
 ```
-The ``CreateComponent`` function takes two arguments: a key-value object of prop keys and data keys which maps data blobs to the component's props, and a object that defines a React class. When the server updates one of the data blobs mapped by a component, all the components that rely on it will re-render with the new, updated and decorated state. This is where it all comes together: you write the component without having to worry about data lifecycles. Anywhere you use a datablob, you can be assured that it will always have the latest data that the server comes back with.
+The `CreateComponent` function takes two arguments: a key-value object of prop keys and data keys which maps data blobs to the component's props, and a object that defines a React class. When the server updates one of the data blobs mapped by a component, all the components that rely on it will re-render with the new, updated and decorated state. This is where it all comes together: you write the component without having to worry about data lifecycles. Anywhere you use a datablob, you can be assured that it will always have the latest data that the server comes back with.
 
 Each component created in this way needs to have the store object passed into it, except the root component, where this will be done for you. You can then access the store via the props, so as to pass it into the child components.
 
@@ -402,7 +403,7 @@ Some data blobs are built-in, and can be used regardless of what you output in s
 ###### route
 This is an object that has two keys: name and params. Name refers to the action name, and params are the parameters either extracted from the URL, or set by whatever called that action/route.
 ###### _pending
-This is an object with keys set for all pending actions. The values will be the number of pending calls, and will always be at least 1. If no actions are pending, then this will be equal to ``{}``.
+This is an object with keys set for all pending actions. The values will be the number of pending calls, and will always be at least 1. If no actions are pending, then this will be equal to `{}`.
 ###### _error
 This is an object with keys set for all actions that have errors. The values will be the error strings returned by the server.
 ###### _success
@@ -412,11 +413,11 @@ Coming soon
 All BocJS components have access to this via their props. The main use is to
 TODO
 
-###### action ``(string, object, optional callback) => ``
+###### action `(string, object, optional callback) => `
 This is a more formal way of initiating an action. Components will have an action function already defined, which is simple a wrapper for this one. This is the core method by which you interact with the server, or change the state on the clientside, or navigate.
 
 The callback function only takes one parameter - a boolean for success.
-###### actionFile ``(string, object, optional callback) => ``
+###### actionFile `(string, object, optional callback) => `
 Calling this will initiate a file download. This works almost exactly like an action, except for the callback function. If a statelet defines a filename, this will trigger the download of the file to the user's file system. If no filename is given, the data will be returned to the client as an arraybuffer via the callback function.
 
 The callback function takes an error and a data buffer. If an error is thrown, the error will be a string returned by the server and the buffer will be null. On success, the opposite will be true.

@@ -34,7 +34,7 @@ Navigate to an empty directory. Install the initializer with:
 ```bash
 npm install boc
 ```
-Then choose if you want to seed your project with "minimal", "minimal-sass" or "example". The recommendation is "minimal-sass" for new projects, "example" to learn BocJS, or "base" to start with most of what you need for a new project.
+Then choose if you want to seed your project with "minimal", "minimal-sass", "base" or "example". The recommendation is "minimal-sass" for bare-bones projects, "example" to learn BocJS, or "base" to start with most of what you need for a new project.
 ```bash
 boc-init minimal-sass
 npm install
@@ -377,6 +377,7 @@ export default CreateComponent({ prop_key: "data_key", things: "things", route: 
         return (
             <div onClick={ this.handleThing } >
                 You are at { this.props.route.name }
+                <OtherComponent store={ this.props.store }>
             </div>
         );
     }
@@ -385,34 +386,151 @@ export default CreateComponent({ prop_key: "data_key", things: "things", route: 
 ```
 The ``CreateComponent`` function takes two arguments: a key-value object of prop keys and data keys which maps data blobs to the component's props, and a object that defines a React class. When the server updates one of the data blobs mapped by a component, all the components that rely on it will re-render with the new, updated and decorated state. This is where it all comes together: you write the component without having to worry about data lifecycles. Anywhere you use a datablob, you can be assured that it will always have the latest data that the server comes back with.
 
-If you want to call an action, do it from an event handler or similar - never call it from a render function!
+Each component created in this way needs to have the store object passed into it, except the root component, where this will be done for you. You can then access the store via the props, so as to pass it into the child components.
+
+If you want to call an action, do it from an event handler or similar - never call it from a render function! Actions can be called with callback functions as well:
+```js
+this.action("action_name", { thing_id: 123 }, function(success) {
+    // normally you don't need callback functions - rendering the current state should be enough
+    if(success) {
+        console.log("sweet");
+    }
+});
+```
 
 Some data blobs are built-in, and can be used regardless of what you output in statelets:
 ###### route
+This is an object that has two keys: name and params. Name refers to the action name, and params are the parameters either extracted from the URL, or set by whatever called that action/route.
 ###### _pending
+This is an object with keys set for all pending actions. The values will be the number of pending calls, and will always be at least 1. If no actions are pending, then this will be equal to ``{}``.
 ###### _error
+This is an object with keys set for all actions that have errors. The values will be the error strings returned by the server.
 ###### _success
 Coming soon
 
-TODO
-
 ### Clientside Store
+All BocJS components have access to this via their props. The main use is to
 TODO
 
-###### action
-###### actionFile
-###### generateURL
-###### isClientContext
-###### processURL
-###### setInitialData
-###### get
-###### subscribe
-###### unsubscribe
-###### broadcast
+###### action ``(string, object, optional callback) => ``
+This is a more formal way of initiating an action. Components will have an action function already defined, which is simple a wrapper for this one. This is the core method by which you interact with the server, or change the state on the clientside, or navigate.
 
+The callback function only takes one parameter - a boolean for success.
+###### actionFile ``(string, object, optional callback) => ``
+Calling this will initiate a file download. This works almost exactly like an action, except for the callback function. If a statelet defines a filename, this will trigger the download of the file to the user's file system. If no filename is given, the data will be returned to the client as an arraybuffer via the callback function.
+
+The callback function takes an error and a data buffer. If an error is thrown, the error will be a string returned by the server and the buffer will be null. On success, the opposite will be true.
+```js
+this.props.store.actionFile("file_access", { file_id: file.file_id }, function(err, data) {
+    if(err) {
+        console.log("ERROR: " + err);
+        return;
+    }
+    var data_buffer = new Uint8Array(data);
+    // do something...
+});
+
+```
+###### isClientContext `() => boolean`
+Useful for determining if this render is occurring on the client or the server. This is the only store function you can call from the render function.
+###### generateURL `(string, object) => string`
+Given an action name and an object of parameters, if the action found has a URL, this will return a relative URL string for that action.
+###### processURL `(string) => object`
+This does the reverse of `generateURL` - it takes a URL parameter and returns an object with `name` equal to the matching action name and `params` equal to the route parameters.
+###### get `(string) => object`
+Use this to get a data blob directly by passing in the key. This will be an instantaneous snapshot only.
+###### subscribe `(string, callback) => `
+Mostly for internal use by components, you can use this to be notified of changes in a data blob. Pass in the key and a callback function that accepts a data object.
+###### unsubscribe `(string, callback) => `
+Unsubscribe by passing in the same key and function you passed into `subscribe`. Ensure the function is the same instance - comparisons are done using `===`.
+###### broadcast `(string, object) => `
+To all subscribers of a data blob, send out an instantaneous update. Pass in the key and the data itself - the data blob key doesn't have to exist, either. This is useful for communicating between distant components. This works with the automatic subscription done by a component when you define it, as well as calling the `subscribe` function manually.
+###### setInitialData `(object, boolean) => `
+Don't mess with this function, it's for internal use.
 
 ### Decorators
-TODO
+Decorators are an array of objects, each specifying some kind of data mutation on data blobs. This is the least "functional programming" aspect of BocJS - but you could write these as pure functions if so inclined.
+
+Each decorator needs an `input` and an `output`. `input` is an array of strings, each one corresponding to a data blob key. If any of those data blobs change, that decorator will be re-run. `output` is a function that accepts the data blobs as arguments.
+
+```js
+var decorators = [
+    // first decorator
+    {
+        input: ["projects", "things"]
+        ,output: function (projects, things) {
+            if((!projects) || (!things)) {
+                // you don't have to return anything
+                return;
+            }
+            var processed = things.map(function(thing) {
+                var processed_thing = ...
+
+                // mutate the data if you like
+                thing.flag = Math.random() > 0.5;
+
+                return processed_thing;
+            });
+            // this will create a new data blob with the key "other_things"
+            return { other_things: processed };
+        }
+    }
+    // second decorator
+    ,{
+        input: ["things", "other_things"]
+        ,output: function (things, other_things) {
+            if((!things) || (!other_things)) {
+                return;
+            }
+            // here you have access to the newly created "other_things" data blob, as well as the mutated "things" data blob
+        }
+    }
+];
+```
+The decorators will be called in order. They will all be called at once on page load, and then every time one of the inputs changes due to an action. You can also return an object with new data blobs. If you prefer to keep your decorators pure, you could avoid mutating data and only output cloned data under new keys.
+
+The most common use case of decorators is creating links back from child objects to their parents, and connecting data blobs that have foreign keys. For example, you might output projects, users, and user_project tables. Then in the decorators, you use the foreign keys in user_project to look up both users and projects, and create object references on all three data types to the other ones. Then writing components becomes much easier, as you have access to a whole interconnected data tree. For example:
+```js
+var decorators = [
+    {
+        input: ["projects", "users", "user_projects"]
+        ,output: function (projects, users, user_projects) {
+            if((!projects) || (!users) || (!user_projects)) {
+                return;
+            }
+            var project_id_hash = {};
+            var user_id_hash = {};
+            projects.forEach(function(project) {
+                // initialize the users array to empty, to account for multiple decorator runs
+                project.users = [];
+                // cache the project reference in a lookup object
+                project_id_hash[project.id] = project;
+            });
+            users.forEach(function(user) {
+                // initialize the users array to empty, to account for multiple decorator runs
+                user.projects = [];
+                // cache the user reference in a lookup object
+                user_id_hash[user.id] = user;
+            });
+
+            user_projects.forEach(function(user_project) {
+                // do the lookups based on foreign keys
+                var project = project_id_hash[user_project.project_id];
+                var user = user_id_hash[user_project.user_id];
+                if(project && user) {
+                    user_project.project = project;
+                    user_project.user = user;
+
+                    project.users.push(user);
+                    user.projects.push(project);
+
+                    // add references from projects and users to user_projects as well if needed
+                }
+            });
+        }
+    }
+];
+```
 
 ## License
 

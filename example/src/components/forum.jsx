@@ -18,7 +18,7 @@ export default CreateComponent({ user: "user", forum : "forum", threads: "thread
         this.setState({ initial_post: evnt.target.value });
     }
     ,handlePost() {
-        console.log("POST");
+        this.action("post_thread", { forum_id: this.props.forum.id, new_thread: this.state.new_thread, initial_post: this.state.initial_post });
     }
     ,handlePostCancel() {
         this.setState({ new_thread: null, initial_post: "" });
@@ -59,7 +59,7 @@ export default CreateComponent({ user: "user", forum : "forum", threads: "thread
                     <button className="btn btn-warning" onClick={ this.handlePostCancel }>Cancel</button>
                 </div>
             );
-        } else if(true) {
+        } else if(this.props.user) {
             var new_thread = <button className="btn btn-primary" onClick={ this.handleNewPost }>New thread</button>;
         }
 

@@ -1,6 +1,4 @@
-/**
- * Created by Grigory on 7/03/2018.
- */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const fs = require('fs');
 import React from 'react';
@@ -78,7 +76,7 @@ async function init_db() { // creates some fixtures for the demo
     await sequelize.sync({ force: true });
 
     var alice = await db.user.create(Object.assign({ username: "alice" }, db.user.genPasswordSync("password123")));
-    var sarah = await db.user.create(Object.assign({ username: "sarah" }, db.user.genPasswordSync("password")));
+    var sarah = await db.user.create(Object.assign({ username: "sarah", session: "sarah_session", session_valid_until: "2040-01-01" }, db.user.genPasswordSync("password")));
     var jane = await db.user.create(Object.assign({ username: "jane" }, db.user.genPasswordSync("password")));
 
     var general = await db.forum.create({ name: "General" });
@@ -93,9 +91,9 @@ async function init_db() { // creates some fixtures for the demo
     var t5 = await db.thread.create({ topic: "Web forums vs. ancient Roman forums: discuss", forum_id: rand.id });
 
     var current_time = 1000000;
-    await db.post.create({ user_id: alice.id, thread_id: t1.id, microseconds: current_time, text: "Why even bother making forums?" });
-    await db.post.create({ user_id: sarah.id, thread_id: t1.id, microseconds: (current_time + 1000), text: "Dunno" });
-    await db.post.create({ user_id: jane.id, thread_id: t1.id, microseconds: (current_time + 2000), text: "Bump, here from a google search, need answer ASAP. I can make one fine, that's all good, but I really need a reason to." });
+    await db.post.create({ user_id: alice.id, thread_id: t1.id, seconds: current_time, text: "Why even bother making forums?" });
+    await db.post.create({ user_id: sarah.id, thread_id: t1.id, seconds: (current_time + 1000), text: "Dunno" });
+    await db.post.create({ user_id: jane.id, thread_id: t1.id, seconds: (current_time + 2000), text: "Bump, here from a google search, need answer ASAP. I can make one fine, that's all good, but I really need a reason to." });
 
     //var users = await db.user.findAll();
     //console.log(users.map(function(item) { return item.get('public'); }));

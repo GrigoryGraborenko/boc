@@ -1,3 +1,4 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 body {
   overflow: hidden;
@@ -32,6 +33,10 @@ body {
     background-color: $navbar-background;
 
     @include flex-container(row, flex-start, center);
+
+    & > div {
+      padding: 0 1em;
+    }
 
     & > .spacer {
       flex: 1 0 auto;

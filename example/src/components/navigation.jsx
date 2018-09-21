@@ -14,6 +14,9 @@ export default CreateComponent({ user : "user", route: "route", pending: "_pendi
         if(!menu_route.label) {
             return <div key={ index } className="spacer"></div>;
         }
+        if(!menu_route.action) {
+            return <div key={ index } >{ menu_route.label }</div>;
+        }
         var is_active = this.props.route.name === menu_route.action;
         var class_name = "pointer" + (is_active ? " bold italics" : "");
         if(menu_route.className) {
@@ -30,18 +33,16 @@ export default CreateComponent({ user : "user", route: "route", pending: "_pendi
     }
     ,render() {
 
-        if(this.props.user) {
+        var menu_routes = [
+            { action: "home_page", label: "Home" }
+            ,{}
+        ];
 
-            var menu_routes = [
-                { action: "home_page", label: "Home" }
-                // { action: "agency_hosts", label: "Host Employers" }
-                // ,{ action: "agency_employees", label: "Employees" }
-                // ,{ action: "agency_requests", label: "Requests" }
-            ];
-            menu_routes.push({});
+        if(this.props.user) {
+            menu_routes.push({ label: ("Logged in as " + this.props.user.username) });
             menu_routes.push({ action: "logout", label: "Logout" });
         } else {
-            var menu_routes = [{}, { action: "home_page", label: "Login" }];
+            menu_routes.push({ action: "login_page", label: "Login" });
         }
 
         return (

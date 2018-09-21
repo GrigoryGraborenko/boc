@@ -13,7 +13,7 @@ module.exports = function(Sequelize, DataTypes) {
             type: DataTypes.STRING
             ,allowNull: false
         }
-        ,microseconds: {
+        ,seconds: {
             type: DataTypes.FLOAT
             ,allowNull: false
         }
@@ -21,7 +21,7 @@ module.exports = function(Sequelize, DataTypes) {
         freezeTableName: true
         ,getterMethods: {
             public: function() {
-                var obj = { id: this.id, text: this.text, microseconds: this.microseconds, thread_id: this.thread_id };
+                var obj = { id: this.id, text: this.text, seconds: this.seconds, thread_id: this.thread_id };
                 return obj;
             }
         }

@@ -15,7 +15,7 @@ module.exports = {
 
         let session = null;
         if(route.name === "login") {
-            var user = await db.user.findOne({ where: sequelize.where(sequelize.fn('lower', sequelize.col('username')), route.params.email.toLowerCase()) });
+            var user = await db.user.findOne({ where: sequelize.where(sequelize.fn('lower', sequelize.col('username')), route.params.username.toLowerCase()) });
             if(user === null) {
                 /// TODO: add delay of a second here
                 throw "Invalid credentials";
@@ -39,8 +39,8 @@ module.exports = {
 
             await user.update({ session: session, session_valid_until: moment().add(1, "days") });
             builder.outputCookie("session", session);
-
             builder.output("user", user.get("selfPublic"));
+            builder.redirect("home_page");
             return { user: user };
         }
 
@@ -58,8 +58,9 @@ module.exports = {
 
         if(route.name === "logout") {
             await user.update({ session: null, session_valid_until: null });
+            builder.output("user", null);
             builder.outputCookie("session", "");
-            return { public: null, user: null };
+            return { user: null };
         } else if(route.name === "change_password") {
             let pass_str = await db.user.testPassword(route.params.old_pass, user.salt);
             if(pass_str !== user.password) {
@@ -67,7 +68,7 @@ module.exports = {
             }
             let new_pass = await db.user.genPassword(route.params.new_pass);
             await user.update(new_pass);
-            builder.log("info", "User " + user.email + " changed password");
+            builder.log("info", "User " + user.username + " changed password");
             return { user: user.get("selfPublic") };
         }
 

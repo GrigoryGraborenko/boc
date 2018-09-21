@@ -7,6 +7,7 @@ import Action from './action.jsx';
 import Navigation from './navigation.jsx';
 import Forum from './forum.jsx';
 import Thread from './thread.jsx';
+import Login from './login.jsx';
 
 export default CreateComponent({ user : "user", route: "route", forums: "forum_list" }, {
     renderForum(item) {
@@ -25,6 +26,8 @@ export default CreateComponent({ user : "user", route: "route", forums: "forum_l
             page = <Forum store={ this.props.store }/>;
         } else if(this.props.route.name === "thread") {
             page = <Thread store={ this.props.store } />;
+        } else if(this.props.route.name === "login_page") {
+            page = <Login store={ this.props.store } />;
         } else {
             page = (
                 <div>

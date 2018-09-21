@@ -1,0 +1,12 @@
+
+@mixin flex-container($direction, $justify: null, $align: null) {
+  display: flex; display: -webkit-flex;
+  flex-wrap: nowrap; -webkit-flex-wrap: nowrap;
+  flex-direction: $direction; -webkit-flex-direction: $direction;
+  @if $justify != null {
+    justify-content: $justify; -webkit-justify-content: $justify;
+  }
+  @if $align != null {
+    align-items: $align; -webkit-align-items: $align;
+  }
+}

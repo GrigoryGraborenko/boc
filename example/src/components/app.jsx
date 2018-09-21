@@ -1,9 +1,7 @@
-/**
- * Created by Grigory on 18/03/2018.
- */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const React = require('react');
-const CreateComponent = require('boc/component')(React);
+const CreateComponent = require('boc/component')(React, require('create-react-class'));
 
 import Action from './action.jsx';
 import Navigation from './navigation.jsx';

@@ -15,7 +15,7 @@ module.exports = {
 
         let session = null;
         if(route.name === "login") {
-            var user = await db.user.findOne({where: sequelize.where(sequelize.fn('lower', sequelize.col('username')), route.params.email.toLowerCase()) });
+            var user = await db.user.findOne({ where: sequelize.where(sequelize.fn('lower', sequelize.col('username')), route.params.email.toLowerCase()) });
             if(user === null) {
                 /// TODO: add delay of a second here
                 throw "Invalid credentials";

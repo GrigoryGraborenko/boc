@@ -101,27 +101,28 @@ async function init_db() { // creates some fixtures for the demo
     //console.log(users.map(function(item) { return item.get('public'); }));
     //var users = await db.forum.findAll();
     //console.log(users.map(function(item) { return item.get('public'); }));
-
 }
-init_db(); // this will execute in parallel with the server startup - fine for a demo, don't do this in production
 
-boc.RunServer({
-    config: config
-    ,orm: sequelize						// if you're using sequelize, this is the sequelize object
-    ,db: db				        		// if you're using sequelize, this is the object with the table specs
-    ,logger: logger						// needs to implement .info(), .debug(), .error() and .trace()
-    ,app: App							// the react element that forms the parent of your entire site
-    ,actions: actions					// list of actions the server supports
-    ,decorators: decorators				// decoration functions that take raw server data and add useful circular references and other un-json-stringify-able things
+init_db().then(function() {
 
-    ,base_dir: (process.cwd() + "/")
-    ,base_html: "src/base.html"
-    ,web_dir: "web"
-    ,statelets: statelets
-    ,html_pre_process: function(html) {		// useful function for mutating the base HTML string before it gets stored for all future requests - will only run once on server startup
-        if((process.argv.length >= 3) && (process.argv[2] === "dev")) {
-            return html.replace("vendor.js", "vendor_dev.js").replace("bundle.js", "bundle_dev.js");
+    boc.RunServer({
+        config: config
+        ,orm: sequelize						// if you're using sequelize, this is the sequelize object
+        ,db: db				        		// if you're using sequelize, this is the object with the table specs
+        ,logger: logger						// needs to implement .info(), .debug(), .error() and .trace()
+        ,app: App							// the react element that forms the parent of your entire site
+        ,actions: actions					// list of actions the server supports
+        ,decorators: decorators				// decoration functions that take raw server data and add useful circular references and other un-json-stringify-able things
+
+        ,base_dir: (process.cwd() + "/")
+        ,base_html: "src/base.html"
+        ,web_dir: "web"
+        ,statelets: statelets
+        ,html_pre_process: function(html) {		// useful function for mutating the base HTML string before it gets stored for all future requests - will only run once on server startup
+            if((process.argv.length >= 3) && (process.argv[2] === "dev")) {
+                return html.replace("vendor.js", "vendor_dev.js").replace("bundle.js", "bundle_dev.js");
+            }
+            return html;
         }
-        return html;
-    }
+    });
 });

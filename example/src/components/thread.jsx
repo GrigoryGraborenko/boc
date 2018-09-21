@@ -1,9 +1,7 @@
-/**
- * Created by Grigory on 26/03/2018.
- */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const React = require('react');
-const CreateComponent = require('boc/component')(React);
+const CreateComponent = require('boc/component')(React, require('create-react-class'));
 import Action from './action.jsx';
 
 // if you were to make a real forum, you'd probably have a core entity that's a recursive tree structure, and just render the levels differently

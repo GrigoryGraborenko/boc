@@ -1,0 +1,67 @@
+
+body {
+  overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+}
+
+#navbar-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: white;
+
+  pointer-events: none;
+  > div {
+    pointer-events: auto;
+  }
+
+  #navbar {
+    position: absolute;
+    top: 0;
+    height: $navigation-height;
+    left: 0;
+    right: 0;
+    padding: 0 $side-gutter;
+    background-color: $navbar-background;
+
+    @include flex-container(row, flex-start, center);
+
+    & > .spacer {
+      flex: 1 0 auto;
+    }
+  }
+
+  #navbar-logo {
+    img {
+      width: 6em;
+      height: $navigation-height;
+      object-fit: cover;
+    }
+  }
+}
+
+#page-container {
+  position: absolute;
+  top: $navigation-height;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1em $side-gutter 0 $side-gutter;
+  overflow-y: scroll;
+
+  #page-full-height {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: scroll;
+  }
+}

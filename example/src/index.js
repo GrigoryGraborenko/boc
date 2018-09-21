@@ -90,10 +90,10 @@ async function init_db() { // creates some fixtures for the demo
     var t4 = await db.thread.create({ topic: "How do I post?", forum_id: qa.id });
     var t5 = await db.thread.create({ topic: "Web forums vs. ancient Roman forums: discuss", forum_id: rand.id });
 
-    var current_time = 1000000;
+    var current_time = 10000;
     await db.post.create({ user_id: alice.id, thread_id: t1.id, seconds: current_time, text: "Why even bother making forums?" });
-    await db.post.create({ user_id: sarah.id, thread_id: t1.id, seconds: (current_time + 1000), text: "Dunno" });
-    await db.post.create({ user_id: jane.id, thread_id: t1.id, seconds: (current_time + 2000), text: "Bump, here from a google search, need answer ASAP. I can make one fine, that's all good, but I really need a reason to." });
+    await db.post.create({ user_id: sarah.id, thread_id: t1.id, seconds: (current_time + 10), text: "Dunno" });
+    await db.post.create({ user_id: jane.id, thread_id: t1.id, seconds: (current_time + 20), text: "Bump, here from a google search, need answer ASAP. I can make one fine, that's all good, but I really need a reason to." });
 
     //var users = await db.user.findAll();
     //console.log(users.map(function(item) { return item.get('public'); }));

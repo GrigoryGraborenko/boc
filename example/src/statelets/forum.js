@@ -32,9 +32,8 @@ module.exports = {
             if(!thread) {
                 throw "Could not find thread";
             }
-            let post = await db.post.create({ user_id: user.user.id, thread_id: thread.id, text: route.params.text, seconds: GetTime() });
-
-            // console.log(route);
+            await db.post.create({ user_id: user.user.id, thread_id: thread.id, text: route.params.text, seconds: GetTime() });
+            // note how the thread var is created - the natural flow of threads and posts are allowed to proceed, but now the new post is in there
 
         } else if(route.name === "forum") {
             let page_size = 10;
@@ -50,7 +49,7 @@ module.exports = {
         }
 
         if(thread) {
-            let posts = await db.post.findAll({ where: { thread_id: thread.id }});
+            let posts = await db.post.findAll({ where: { thread_id: thread.id }, order: [["seconds", "ASC"]]});
             builder.output({ thread: thread.get('public'), posts: posts.map(public_item) });
         }
 

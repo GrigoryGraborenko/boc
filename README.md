@@ -61,7 +61,7 @@ Go to localhost in your browser when the server is running and in the console, t
 ```
 g_InitialData
 ```
-This is the data structure that gets filled with your data and defined automatically on page load. It's also the same one that gets 'decorated' (more on that later), so it's helpful to have a look at it when debugging.
+This is the data structure that gets filled with your **data blobs** and defined automatically on page load. It's also the same one that gets 'decorated' (more on that later), so it's helpful to have a look at it when debugging.
 
 The various components of BocJS will be explained below using examples from the 'example' project - the one copied over for you if you chose to use 'boc-init example'. This is a simple forum webapp.
 
@@ -91,11 +91,11 @@ module.exports = {
 };
 ```
 
-A statelet consists of an object with two keys: a list of dependencies (in this case, "user" and "forum") and a process function. The process function is where you do whatever the server needs to do, and output your data.
+A statelet consists of an object with two keys: a list of dependencies (in this case, "user" and "forum") and a process function. The process function is where you do whatever the server needs to do, and output your **data blobs**.
 
-The dependencies refer to other statelets, which get executed before process runs and the results injected into the function as arguments. Statelets don't actually need to return anything - the work is mainly done by the `builder.output(key, value)` function, which sends data to the client. Those other statelets called by boot can and will output their own data using the same mechanism.
+The dependencies refer to other statelets, which get executed before process runs and the results injected into the function as arguments. Statelets don't actually need to return anything - the work is mainly done by the `builder.output(key, value)` function, which sends a **data blob** to the client. Those other statelets called by boot can and will output their own **data blobs** using the same mechanism.
 
-Once the entry point statelet is resolved, and all data has been output, the data decoration begins. Decoration is the process of modifying the data blobs so they can be easily used by the render components. Usages include caching calculated values, creating references between related objects, or providing back-references from child to parent objects (thus creating cyclic data structures). The data sent from server to client is undecorated (it is JSON stringified before decoration), so don't worry about sending too much data, as it exists only temporarily in memory. This process is also repeated on the client side with the exact same data, so make sure your decoration functions are runnable in the browser too.
+Once the entry point statelet is resolved, and all **data blobs** has been output, the data decoration begins. Decoration is the process of modifying the **data blobs** so they can be easily used by the render components. Usages include caching calculated values, creating references between related objects, or providing back-references from child to parent objects (thus creating cyclic data structures). The data sent from server to client is undecorated (it is JSON stringified before decoration), so don't worry about sending too much data, as it exists only temporarily in memory. This process is also repeated on the client side with the exact same data, so make sure your decoration functions are runnable in the browser too.
 
 Here is a typical decorator:
 ```js
@@ -116,9 +116,9 @@ const decorators = [
         }
     }
 ```
-The inputs are `forum` and  `threads`, which are data blobs output by the statelets. Here, although they are separate data items, we link them via the decorator. This way, if you have access to the thread, you have access to the forum and vice versa.
+The inputs are `forum` and  `threads`, which are **data blobs** output by the statelets. Here, although they are separate **data blobs**, we link them via the decorator. This way, if you have access to the thread, you have access to the forum and vice versa.
 
-The final step is to use this data in a render component. You must provide a single root component to the server on startup - this then becomes the entry point for all rendering of state.
+The final step is to use this **data blob** in a render component. You must provide a single root component to the server on startup - this then becomes the entry point for all rendering of state.
 
 ```js
 const React = require('react');
@@ -158,13 +158,13 @@ export default CreateComponent({ user : "user", route: "route", forums: "forum_l
 
 
 ```
-Here, this one component acts like a switch for directing rendering to the correct component. The switching is done by route name matching, thus creating the behaviour of showing different pages when you navigate to different URL's. Up top, the `CreateComponent` function takes a key-value mapping of data blobs to component props. The keys define the prop keys, and the values define what data blob to hook up. So in this example, a data blob "forum_list" was output by one of the statelets, and then it was decorated. You then have access to it in any component than needs it, not just the top level component.
+Here, this one component acts like a switch for directing rendering to the correct component. The switching is done by route name matching, thus creating the behaviour of showing different pages when you navigate to different URL's. Up top, the `CreateComponent` function takes a key-value mapping of **data blobs** to component props. The keys define the prop keys, and the values define what **data blob** to hook up. So in this example, a **data blob** "forum_list" was output by one of the statelets, and then it was decorated. You then have access to it in any component than needs it, not just the top level component.
 
 The final aspect of the system that completes the loop is calling actions. Within a component's event handlers (never the render function!), you can call `this.action`. For example:
 ```js
 this.action("thread", { thread_id: "abc-123" });
 ```
-Since the action `thread` has been defined above with `server: true`, a server call will be made with this route name and data. The boot statelet will execute, and "thread_id" will be available. It is then the statelet's job to respond correctly, doing access/security checks, and then output the correct data. The decorators will then run and all components that have subscribed to that data will update.
+Since the action `thread` has been defined above with `server: true`, a server call will be made with this route name and data. The boot statelet will execute, and "thread_id" will be available. It is then the statelet's job to respond correctly, doing access/security checks, and then output the correct **data blob**. The decorators will then run and all components that have subscribed to that **data blob** will update.
 
 ### Actions
 
@@ -212,7 +212,7 @@ If set to true, this action will always make a server call. If given an array, i
 Set this to true when you want an action with a URL to be called as a simple POST request without navigation.
 
 ###### entry `optional [string]`
-The name of the statelet the server call should start in. Any data output by previous calls will persist in client-side memory, so pushing all data every time is not necessary. This allows you to target a specific statelet to update only the data you need.
+The name of the statelet the server call should start in. Any **data blob** output by previous calls will persist in client-side memory, so pushing all **data blobs** every time is not necessary. This allows you to target a specific statelet to update only the **data blobs** you need.
 
 ###### store `optional [function]`
 
@@ -306,10 +306,10 @@ builder.output("other_thing", 1234);
 // object syntax
 builder.output({ things: [1, 2, 3, { a: 10, b: 20 }], other_thing: 1234 });
 ```
-When called with just a key-value object, this outputs a series of data blobs with each value attached to it's key.
-The data is not sent immediately - only when the entry statelet finishes execution. In the meantime, it can be overwritten as much as you want.
+When called with just a key-value object, this outputs a series of **data blobs** with each value attached to it's key.
+The **data blob** is not sent immediately - only when the entry statelet finishes execution. In the meantime, it can be overwritten as much as you want.
 ###### get `async (string) => return value of statelet`
-Gets the return value of another statelet. If it has been executed already during this server request, it returns immediately. Otherwise you should await the result. Any outputs that statelet creates works exactly as normal. A common use case might be to call the statelet and not even use the return value - simply calling it so that it outputs it's data to the client.
+Gets the return value of another statelet. If it has been executed already during this server request, it returns immediately. Otherwise you should await the result. Any outputs that statelet creates works exactly as normal. A common use case might be to call the statelet and not even use the return value - simply calling it so that it outputs it's **data blobs** to the client.
 ###### isGetRequest `() => boolean`
 Returns true if the request is a GET as opposed to a POST.
 ###### getParam `(string) => object`
@@ -347,9 +347,9 @@ When all else fails, you can respond with an HTTP response code, an object key-v
 ###### getManualResponse `() => boolean`
 Checks to see if a manual response has been outputted.
 ###### decorateData `(object) => object`
-This function is useful for when you need access to data in it's decorated form, as opposed to the raw form you usually get in statelets. Pass in a key-value object with the data blobs and the decorators will run for you.
+This function is useful for when you need access to **data blobs** in it's decorated form, as opposed to the raw form you usually get in statelets. Pass in a key-value object with the **data blobs** and the decorators will run for you.
 ###### getOutput `(optional string) => object`
-Retrieve the data in it's raw form before it's sent to the client. If you pass in a string, you only get the data for that key. If you pass nothing in, you get the whole set of key-values.
+Retrieve the **data blob** in it's raw form before it's sent to the client. If you pass in a string, you only get the **data blob** for that key. If you pass nothing in, you get the whole set of key-values.
 ###### getAllOutputHeaders `(object) => object`
 Given an object, this appends the currently set output headers (including cookies), and returns the result. Mainly for internal use, but it's there if you want it for some reason.
 ###### getFileOutput `() => object`
@@ -385,7 +385,7 @@ export default CreateComponent({ prop_key: "data_key", things: "things", route: 
 });
 
 ```
-The `CreateComponent` function takes two arguments: a key-value object of prop keys and data keys which maps data blobs to the component's props, and a object that defines a React class. When the server updates one of the data blobs mapped by a component, all the components that rely on it will re-render with the new, updated and decorated state. This is where it all comes together: you write the component without having to worry about data lifecycles. Anywhere you use a datablob, you can be assured that it will always have the latest data that the server comes back with.
+The `CreateComponent` function takes two arguments: a key-value object of prop keys and data keys which maps **data blobs** to the component's props, and a object that defines a React class. When the server updates one of the **data blobs** mapped by a component, all the components that rely on it will re-render with the new, updated and decorated state. This is where it all comes together: you write the component without having to worry about data lifecycles. Anywhere you use a **data blob**, you can be assured that it will always have the latest data that the server comes back with.
 
 Each component created in this way needs to have the store object passed into it, except the root component, where this will be done for you. You can then access the store via the props, so as to pass it into the child components.
 
@@ -399,7 +399,7 @@ this.action("action_name", { thing_id: 123 }, function(success) {
 });
 ```
 
-Some data blobs are built-in, and can be used regardless of what you output in statelets:
+Some **data blobs** are built-in, and can be used regardless of what you output in statelets:
 ###### route
 This is an object that has two keys: name and params. Name refers to the action name, and params are the parameters either extracted from the URL, or set by whatever called that action/route.
 ###### _pending
@@ -439,20 +439,20 @@ Given an action name and an object of parameters, if the action found has a URL,
 ###### processURL `(string) => object`
 This does the reverse of `generateURL` - it takes a URL parameter and returns an object with `name` equal to the matching action name and `params` equal to the route parameters.
 ###### get `(string) => object`
-Use this to get a data blob directly by passing in the key. This will be an instantaneous snapshot only.
+Use this to get a **data blob** directly by passing in the key. This will be an instantaneous snapshot only.
 ###### subscribe `(string, callback) => `
-Mostly for internal use by components, you can use this to be notified of changes in a data blob. Pass in the key and a callback function that accepts a data object.
+Mostly for internal use by components, you can use this to be notified of changes in a **data blob**. Pass in the key and a callback function that accepts a **data blob**.
 ###### unsubscribe `(string, callback) => `
 Unsubscribe by passing in the same key and function you passed into `subscribe`. Ensure the function is the same instance - comparisons are done using `===`.
 ###### broadcast `(string, object) => `
-To all subscribers of a data blob, send out an instantaneous update. Pass in the key and the data itself - the data blob key doesn't have to exist, either. This is useful for communicating between distant components. This works with the automatic subscription done by a component when you define it, as well as calling the `subscribe` function manually.
+To all subscribers of a **data blob**, send out an instantaneous update. Pass in the key and the data itself - the **data blob** key doesn't have to exist, either. This is useful for communicating between distant components. This works with the automatic subscription done by a component when you define it, as well as calling the `subscribe` function manually.
 ###### setInitialData `(object, boolean) => `
 Don't mess with this function, it's for internal use.
 
 ### Decorators
-Decorators are an array of objects, each specifying some kind of data mutation on data blobs. This is the least "functional programming" aspect of BocJS - but you could write these as pure functions if so inclined.
+Decorators are an array of objects, each specifying some kind of data mutation on **data blobs**. This is the least "functional programming" aspect of BocJS - but you could write these as pure functions if so inclined.
 
-Each decorator needs an `input` and an `output`. `input` is an array of strings, each one corresponding to a data blob key. If any of those data blobs change, that decorator will be re-run. `output` is a function that accepts the data blobs as arguments.
+Each decorator needs an `input` and an `output`. `input` is an array of strings, each one corresponding to a **data blob** key. If any of those **data blobs** change, that decorator will be re-run. `output` is a function that accepts the **data blobs** as arguments.
 
 ```js
 var decorators = [
@@ -488,9 +488,9 @@ var decorators = [
     }
 ];
 ```
-The decorators will be called in order. They will all be called at once on page load, and then every time one of the inputs changes due to an action. You can also return an object with new data blobs. If you prefer to keep your decorators pure, you could avoid mutating data and only output cloned data under new keys.
+The decorators will be called in order. They will all be called at once on page load, and then every time one of the inputs changes due to an action. You can also return an object with new **data blobs**. If you prefer to keep your decorators pure, you could avoid mutating data and only output cloned data under new keys.
 
-The most common use case of decorators is creating links back from child objects to their parents, and connecting data blobs that have foreign keys. For example, you might output projects, users, and user_project tables. Then in the decorators, you use the foreign keys in user_project to look up both users and projects, and create object references on all three data types to the other ones. Then writing components becomes much easier, as you have access to a whole interconnected data tree. For example:
+The most common use case of decorators is creating links back from child objects to their parents, and connecting **data blobs** that have foreign keys. For example, you might output projects, users, and user_project tables. Then in the decorators, you use the foreign keys in user_project to look up both users and projects, and create object references on all three data types to the other ones. Then writing components becomes much easier, as you have access to a whole interconnected **data blob** tree. For example:
 ```js
 var decorators = [
     {

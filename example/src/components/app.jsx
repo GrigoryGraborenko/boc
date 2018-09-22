@@ -28,6 +28,12 @@ export default CreateComponent({ user : "user", route: "route", forums: "forum_l
             page = <Thread store={ this.props.store } />;
         } else if(this.props.route.name === "login_page") {
             page = <Login store={ this.props.store } />;
+        } else if(this.props.route.name === "about") {
+            page = (
+                <div>
+                    This is an example of a bare-bones forum.
+                </div>
+            );
         } else {
             page = (
                 <div>

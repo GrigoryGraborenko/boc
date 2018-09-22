@@ -42,7 +42,9 @@ export default CreateComponent({ user: "user", forum : "forum", threads: "thread
             return <div>Cannot find forum</div>;
         }
 
-        if(this.state.new_thread !== null) {
+        if(this.props.pending.post_thread) {
+            var new_thread = <div>Posting...</div>;
+        } else if(this.state.new_thread !== null) {
             var new_thread = (
                 <div>
                     <div>
@@ -65,6 +67,9 @@ export default CreateComponent({ user: "user", forum : "forum", threads: "thread
 
         return (
             <div>
+                <Action store={ this.props.store } name="home_page">
+                    <span>&larr; Back</span>
+                </Action>
                 <h2>{ this.props.forum.name }</h2>
                 { this.props.forum.forum_threads.map(this.renderThread) }
                 { new_thread }

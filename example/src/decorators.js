@@ -1,6 +1,4 @@
-/**
- * Created by Grigory on 18/03/2018.
- */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 const decorators = [
     {
@@ -21,9 +19,9 @@ const decorators = [
     // yes, these two decorators are identical in structure and probably should be refactored, but the goal of this example is clarity not elegance
     // the above comment is needlessly defensive
     ,{
-        input: ["thread", "posts"]
-        ,output: function(thread, posts) {
-            if((!thread) || (!posts)) {
+        input: ["forum_list", "thread", "posts"]
+        ,output: function(forum_list, thread, posts) {
+            if((!forum_list) || (!thread) || (!posts)) {
                 return;
             }
             posts.forEach(function(post) {
@@ -31,6 +29,13 @@ const decorators = [
                     post.thread = thread;
                     thread.thread_posts.push(post);
                 }
+            });
+            forum_list.some(function(forum) {
+                if(forum.id === thread.forum_id) {
+                    thread.forum = forum;
+                    return true;
+                }
+                return false;
             });
         }
     }

@@ -35,6 +35,7 @@ export default CreateComponent({ user : "user", route: "route", pending: "_pendi
 
         var menu_routes = [
             { action: "home_page", label: "Home" }
+            ,{ action: "about", label: "About" }
             ,{}
         ];
 

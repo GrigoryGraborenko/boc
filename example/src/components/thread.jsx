@@ -2,6 +2,8 @@
 
 const React = require('react');
 const CreateComponent = require('boc/component')(React, require('create-react-class'));
+import Action from './action.jsx';
+import moment from 'moment';
 
 // if you were to make a real forum, you'd probably have a core entity that's a recursive tree structure, and just render the levels differently
 // forum, threads and posts would all be nodes in a tree, and it would be a totally sweet, compact code base
@@ -24,8 +26,9 @@ export default CreateComponent({ user: "user", thread: "thread", pending: "_pend
     }
     ,renderPost(post) {
         return (
-            <div key={ post.id } >
-                <p>{ post.text }</p>
+            <div key={ post.id } className="forum-post">
+                <div>{ post.text }</div>
+                <small>{ post.user.username } - { moment.unix(post.seconds).format("H:mm:ss DD-MM-YYYY") }</small>
             </div>
         );
     }
@@ -39,7 +42,9 @@ export default CreateComponent({ user: "user", thread: "thread", pending: "_pend
             return <div>Cannot find thread</div>;
         }
 
-        if((this.state.new_post !== null) && this.props.user) {
+        if(this.props.pending.post_reply) {
+            var new_post = <div>Posting...</div>;
+        } else if((this.state.new_post !== null) && this.props.user) {
             var new_post = (
                 <div>
                     <textarea className="form-control" placeholder="Reply..." value={ this.state.new_post } onChange={ this.handlePostChange }/>
@@ -53,6 +58,9 @@ export default CreateComponent({ user: "user", thread: "thread", pending: "_pend
 
         return (
             <div>
+                <Action store={ this.props.store } name="forum" forum_name={ this.props.thread.forum.name } >
+                    <span>&larr; Back</span>
+                </Action>
                 <h2>{ this.props.thread.topic }</h2>
                 { this.props.thread.thread_posts.map(this.renderPost) }
                 { new_post }

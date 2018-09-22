@@ -8,6 +8,8 @@ var actions = {
     ,post_thread: { server: true, post: true, entry: "forum" }
     ,post_reply: { server: true, post: true, entry: "forum" }
 
+    ,about: { url: "/about" }
+
     ,thread: { url: "/thread/:thread_id", server: true, post: true }
     ,forum: { url: "/:forum_name/:page", defaults: { page: null }, server: true, post: true }
     ,home_page: { url: "/" }

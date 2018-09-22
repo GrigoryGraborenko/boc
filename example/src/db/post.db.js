@@ -22,6 +22,11 @@ module.exports = function(Sequelize, DataTypes) {
         ,getterMethods: {
             public: function() {
                 var obj = { id: this.id, text: this.text, seconds: this.seconds, thread_id: this.thread_id };
+
+                if(this.user) {
+                    obj.user = this.user.get("public");
+                }
+
                 return obj;
             }
         }

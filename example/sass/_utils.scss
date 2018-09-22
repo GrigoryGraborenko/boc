@@ -1,3 +1,15 @@
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+.pointer {
+  cursor: pointer;
+}
+
+.italics {
+  font-style: italic;
+}
+.bold {
+  font-weight: 600;
+}
 
 @mixin flex-container($direction, $justify: null, $align: null) {
   display: flex; display: -webkit-flex;

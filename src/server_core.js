@@ -1,6 +1,4 @@
-/**
- * Created by Grigory on 15-Feb-17.
- */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 'use strict';
 
 const fs = require('fs');
@@ -223,12 +221,13 @@ module.exports = function(React, ReactDOMServer, static_files, html_base, tools)
                     var element = React.createElement(tools.app, { store: store, client: false });
                     var html_react = ReactDOMServer.renderToStaticMarkup(element);
                 } catch (err) {
+                    var html_react = "<div><h1>Render Error</h1><i>" + err + "</i></div>";
                     if(logger) {
                         logger.error("Detected error on react render", err);
                     }
-                    response.writeHead(500, {});
-                    response.end();
-                    return;
+                    // response.writeHead(500, {});
+                    // response.end();
+                    // return;
                 }
 
                 let payload = html_base[0] + html_react + html_base[1];

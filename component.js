@@ -31,6 +31,9 @@ module.exports = function(React, CreateClass) {
                 }
                 return state;
             }
+            ,componentDidCatch: function(error, info) {
+                this.setState({ _error_caught: error });
+            }
             ,componentWillMount: function() {
                 var subscriptions = {};
                 var this_ref = this;
@@ -65,6 +68,9 @@ module.exports = function(React, CreateClass) {
             ,render: function () {
                 if(this.props.store === undefined) {
                     return null;
+                }
+                if(this.state._error_caught !== undefined) {
+                    return React.createElement("div", {}, this.state._error_caught + "");
                 }
                 var params = Object.assign({}, this.props, this.state);
                 delete params["_subscriptions"];

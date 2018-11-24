@@ -109,6 +109,10 @@ var StateBuilder = function(params, sequelize, db, logger, decorators, statelets
         m_OutputHeaders[header] = data;
     };
     m_Api.manualResponse = function(status, headers, body) {
+        if(status === undefined) {
+            m_ManualResponse = true;
+            return response;
+        }
         response.writeHead(status, headers);
         response.write(body);
         response.end();

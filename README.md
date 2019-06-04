@@ -14,7 +14,7 @@ The true conceptual gulf is between data retrieval and presentation. Each server
 ##### Refreshable single page app
 Create a web app that allows pure, instant client-side navigation, but still handles page refreshes and back/forward navigation correctly. Only make server calls when you need more data or have to modify it. The rest of the time, the user can click around like they are using a desktop app.
 
-#### Automatic hydration of templates
+##### Automatic hydration of templates
 Any server calls that modify data will then automatically refresh every usage of it, saving you the trouble of writing glue that listens to changes. It doesn't matter what caused the data to change - the usage is decoupled from the processes that create and edit it.
 
 ##### Server-side rendering
@@ -36,7 +36,7 @@ npm install boc
 ```
 Then choose if you want to seed your project with "minimal", "minimal-sass", "base" or "example". The recommendation is "minimal-sass" for bare-bones projects, "example" to learn BocJS, or "base" to start with most of what you need for a new project.
 ```bash
-boc-init minimal-sass
+node node_modules/boc/cli minimal-sass
 npm install
 webpack
 npm run dev-watch
@@ -63,7 +63,7 @@ g_InitialData
 ```
 This is the data structure that gets filled with your **data blobs** and defined automatically on page load. It's also the same one that gets 'decorated' (more on that later), so it's helpful to have a look at it when debugging.
 
-The various components of BocJS will be explained below using examples from the 'example' project - the one copied over for you if you chose to use 'boc-init example'. This is a simple forum webapp.
+The various components of BocJS will be explained below using examples from the 'example' project - the one copied over for you if you chose to use 'node node_modules/boc/cli example'. This is a simple forum webapp.
 
 ### Overview
 
